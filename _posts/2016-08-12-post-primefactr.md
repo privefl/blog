@@ -5,6 +5,7 @@ date: "August 10, 2016"
 layout: post
 ---
 
+***
 
 In this post, I will present my first R package. It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
 
@@ -26,11 +27,7 @@ library("primefactr")
 ## Features
 
 ### Main feature
-For instance, to compute 
-
-$$P(X = k) = \dfrac{\binom{K}{k}~\binom{N-K}{n-k}}{\binom{N}{n}} = \dfrac{K!~(N-K)!~n!~(N-n)!}{k!~(K-k)!~(n-k)!~(N-K-n+k)!~N!},$$
-
-you can use 
+For instance, to compute $$P(X = k) = \dfrac{\binom{K}{k}~\binom{N-K}{n-k}}{\binom{N}{n}} = \dfrac{K!~(N-K)!~n!~(N-n)!}{k!~(K-k)!~(n-k)!~(N-K-n+k)!~N!},$$ you can use 
 
 {% highlight r %}
 f <- function(k, N, K, n) {
@@ -70,7 +67,7 @@ f(k = 1000, N = 15100, K = 5000, n = 3100)
 {% highlight text %}
 ## [1] 0.009003809
 {% endhighlight %}
-A direct approach would require computing {% highlight r %}`factorial(15100)`{% endhighlight %}, while {% highlight r %}`factorial(100) = 9.332622e+157`{% endhighlight %}.
+A direct approach would require computing `factorial(15100)`, while `factorial(100) = 9.332622e+157`.
 
 
 ### Implementation
@@ -78,13 +75,9 @@ A direct approach would require computing {% highlight r %}`factorial(15100)`{% 
 This uses a Prime Factorization to simplify computations.
 
 I code a number as follows,
-
 $$number = \prod i^{code[i]},$$
-
 or, which is equivalent,
-
 $$\log(number) = \sum code[i] \times \log(i).$$
-
 For example, 
 
 - $5$ is coded as (0, 0, 0, 0, 1),
