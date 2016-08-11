@@ -5,6 +5,7 @@ date: "August 10, 2016"
 layout: post
 ---
 
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 In this post, I will present my first R package. It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
 
