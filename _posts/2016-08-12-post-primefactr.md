@@ -2,14 +2,9 @@
 title: "R package primefactr"
 author: "Florian Privé"
 date: "August 10, 2016"
-output: 
-  html_document:
-    keep_md: yes
-    toc: yes
-    toc_float: yes
+layout: post
 ---
 
-***
 
 In this post, I will present my first R package. It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
 
