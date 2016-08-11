@@ -27,7 +27,9 @@ library("primefactr")
 
 ### Main feature
 For instance, to compute 
+
 $$P(X = k) = \dfrac{\binom{K}{k}~\binom{N-K}{n-k}}{\binom{N}{n}} = \dfrac{K!~(N-K)!~n!~(N-n)!}{k!~(K-k)!~(n-k)!~(N-K-n+k)!~N!},$$
+
 you can use 
 
 {% highlight r %}
