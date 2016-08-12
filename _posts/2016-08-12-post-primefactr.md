@@ -27,11 +27,15 @@ library("primefactr")
 ## Features
 
 ### Main feature
-For instance, to compute  
+For instance, to compute 
+
 $$
- P(X = k) = \dfrac{\binom{K}{k}~\binom{N-K}{n-k}}{\binom{N}{n}} = \dfrac{K!~(N-K)!~n!~(N-n)!}{k!~(K-k)!~(n-k)!~(N-K-n+k)!~N!}, 
+
+P(X = k) = \dfrac{\binom{K}{k}~\binom{N-K}{n-k}}{\binom{N}{n}} = \dfrac{K!~(N-K)!~n!~(N-n)!}{k!~(K-k)!~(n-k)!~(N-K-n+k)!~N!},
+
 $$
-  you can use 
+
+ you can use 
 
 {% highlight r %}
 f <- function(k, N, K, n) {
@@ -79,17 +83,25 @@ A direct approach would require computing `factorial(15100)`, while `factorial(1
 This uses a Prime Factorization to simplify computations.
 
 I code a number as follows,
- 
+
+
 $$
- number = \prod i^{code[i]}, 
+
+number = \prod i^{code[i]},
+
 $$
- 
+
+
 or, which is equivalent,
- 
+
+
 $$
- \log(number) = \sum code[i] \times \log(i). 
+
+\log(number) = \sum code[i] \times \log(i).
+
 $$
- 
+
+
 For example, 
 
 - $$5$$ is coded as (0, 0, 0, 0, 1),

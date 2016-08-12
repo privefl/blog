@@ -9,7 +9,7 @@ KnitPost <- function(convert_file, fig.dir = "figures") {
   # directory for converted markdown files
   posts.path <- file.path(site.path, "_posts")
   
-  knitr::render_jekyll(highlight = "prettify")
+  knitr::render_jekyll(highlight = "pygments")
   # "base.dir is never used when composing the URL of the figures; it is
   # only used to save the figures to a different directory, which can
   # be useful when you do not want the figures to be saved under the
