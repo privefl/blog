@@ -7,11 +7,7 @@ layout: post
 
 ***
 
-<div style="text-align:center">
-<a target="_blank" href="https://htmlpreview.github.io/?https://github.com/privefl/blog/blob/gh-pages/_knitr/post-primefactr.html">View this as a standalone HTML page</a>
-</div>
 
-***
 
 
 

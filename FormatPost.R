@@ -12,7 +12,7 @@ FormatPost <- function(convert_file, githubrepo = NULL) {
   
   # write ref to html from github
   if (is.null(githubrepo)) {
-    ref.to.html <- ""
+    ref.to.html <- "\n\n***\n\n"
   } else {
     ref.to.html <-  paste0("\n\n***\n\n", 
                            "<div style=\"text-align:center\">\n",
