@@ -29,6 +29,35 @@ pre {
   /*overflow: hidden;*/
 }
 
+.prettyprint {
+  background-color: #e6e6e6;
+}
+
+/* line 351, ../scss/default.scss */
+pre[data-lang]:after {
+  content: attr(data-lang);
+  background-color: darkgrey;
+  right: 0;
+  top: 0;
+  position: absolute;
+  font-size: 16pt;
+  color: white;
+  padding: 2px 25px;
+  text-transform: uppercase;
+}
+
+/* line 364, ../scss/default.scss */
+pre[data-lang="go"] {
+  color: #333;
+}
+
+/* line 368, ../scss/default.scss */
+code {
+  font-size: 95%;
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+  color: black;
+}
+
 html {
   font-size: 100%;
 }
