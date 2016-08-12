@@ -14,12 +14,8 @@
 /**************/
 
 pre {
-	overflow: invisible;
-}
-	
-pre:hover {
-	position: relative;
-	z-index: 99;
+	overflow: auto;
+	overflow-y: none;
 }
 	
 html {
