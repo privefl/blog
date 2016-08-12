@@ -3,9 +3,9 @@ title:  "R package primefactr"
 author: "Florian Privé"
 date: "August 10, 2016"
 output: 
-  html_document:
-    toc: yes
-    toc_float: yes
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 
 ***

@@ -77,6 +77,6 @@ KnitPost <- function(convert_file, githubrepo, date = Sys.Date(),
   # replace file with new lines
   writeLines(lines, out.file, useBytes = TRUE)
   
-  return("DONE")
+  return(out.file)
 }
 
