@@ -1,6 +1,7 @@
-FormatPost <- function(convert_file, githubrepo) {
+FormatPost <- function(convert_file, githubrepo = NULL) {
   # convert_file: name/path to specific file (any extension) to convert
-  # githubrepo: string giving your repository name ex: "privefl"
+  # githubrepo: string giving your repository name (ex: "privefl") 
+  #             in order to have a link to the pure html document
   
   # without extension
   prefix <- tools::file_path_sans_ext(convert_file)
@@ -10,17 +11,21 @@ FormatPost <- function(convert_file, githubrepo) {
   html <- paste0(prefix, ".html")
   
   # write ref to html from github
-  ref.to.html <-  paste0("\n\n***\n\n", 
-                         "<div style=\"text-align:center\">\n",
-                         "<a target=\"_blank\" ",
-                         "href=\"https://htmlpreview.github.io/?",
-                         "https://github.com/",
-                         githubrepo,
-                         "/blog/blob/gh-pages/",
-                         html,
-                         "\">View this as a standalone HTML page</a>\n",
-                         "</div>\n\n",
-                         "***\n\n")
+  if (is.null(githubrepo)) {
+    ref.to.html <- ""
+  } else {
+    ref.to.html <-  paste0("\n\n***\n\n", 
+                           "<div style=\"text-align:center\">\n",
+                           "<a target=\"_blank\" ",
+                           "href=\"https://htmlpreview.github.io/?",
+                           "https://github.com/",
+                           githubrepo,
+                           "/blog/blob/gh-pages/",
+                           html,
+                           "\">View this as a standalone HTML page</a>\n",
+                           "</div>\n\n",
+                           "***\n\n")
+  }
   
   # read files
   lines.rmd <- readLines(rmd, encoding = "UTF-8")

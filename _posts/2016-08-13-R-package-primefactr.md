@@ -5,16 +5,6 @@ layout: post
 ---
 
 
-***
-
-<div style="text-align:center">
-<a target="_blank" href="https://htmlpreview.github.io/?https://github.com/privefl/blog/blob/gh-pages/_knitr/post-primefactr.html">View this as a standalone HTML page</a>
-</div>
-
-***
-
-
-
 
 
 In this post, I will present my first R package. It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
