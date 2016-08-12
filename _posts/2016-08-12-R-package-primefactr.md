@@ -133,7 +133,8 @@ Factorization by 2:
 This is already finished (this is a small example). You get that $$8! / 5! = 2^4 \times 3^1 \times 7^1$$. Let us verify:
 
 {% highlight r %}
-cat(sprintf("%s == %s", factorial(8)/factorial(5), 2^4*3*7))
+cat(sprintf("%s == %s", factorial(8) / factorial(5), 
+            2^4 * 3 * 7))
 {% endhighlight %}
 
 
