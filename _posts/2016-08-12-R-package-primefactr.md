@@ -8,9 +8,12 @@ output:
     toc: yes
     toc_float: yes
 ---
+
 ***
 
-[-> View this as a standalone HTML page <-](https://github.com/privefl/blog/blob/gh-pages/_knitr/post-primefactr.html)
+<center>
+[View this as a standalone HTML page](https://github.com/privefl/blog/blob/gh-pages/_knitr/post-primefactr.html)
+</center>
 
 ***
 
