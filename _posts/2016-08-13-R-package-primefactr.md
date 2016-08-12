@@ -11,9 +11,7 @@ layout: post
 
 
 
-
-
-In this post, I will present my first R package. It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
+In this post, I will present my first R package, [available on CRAN](https://cran.r-project.org/web/packages/primefactr/index.html). It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
 
 This small R package was initially developed to compute [hypergeometric probabilities](https://en.wikipedia.org/wiki/Hypergeometric_distribution) which are used in Fisher's exact test, for instance. It was also a way to get introduced with CRAN submission :').
 
