@@ -1,6 +1,9 @@
-# R package primefactr
-Florian Privé  
-August 10, 2016  
+---
+title: "R package primefactr"
+author: "Florian Privé"
+date: "August 10, 2016"
+layout: post
+---
 
 ***
 
