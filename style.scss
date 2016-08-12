@@ -13,51 +13,6 @@
 /* BASE RULES */
 /**************/
 
-pre {
-  font-family: 'Source Code Pro', 'Courier New', monospace;
-  font-size: 20px;
-  line-height: 28px;
-  padding: 10px 0 10px 60px;
-  letter-spacing: -1px;
-  margin-bottom: 20px;
-  width: 106%;
-  left: -60px;
-  position: relative;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  /*overflow: hidden;*/
-}
-
-.prettyprint {
-  background-color: #e6e6e6;
-}
-
-/* line 351, ../scss/default.scss */
-pre[data-lang]:after {
-  content: attr(data-lang);
-  background-color: darkgrey;
-  right: 0;
-  top: 0;
-  position: absolute;
-  font-size: 16pt;
-  color: white;
-  padding: 2px 25px;
-  text-transform: uppercase;
-}
-
-/* line 364, ../scss/default.scss */
-pre[data-lang="go"] {
-  color: #333;
-}
-
-/* line 368, ../scss/default.scss */
-code {
-  font-size: 95%;
-  font-family: 'Source Code Pro', 'Courier New', monospace;
-  color: black;
-}
-
 html {
   font-size: 100%;
 }
