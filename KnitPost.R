@@ -16,10 +16,10 @@ KnitPost <- function(convert_file, date = Sys.Date(),
   # current working directory.
   # The URL of an image is always base.url + fig.path"
   # https://groups.google.com/forum/#!topic/knitr/18aXpOmsumQ
-  opts_knit$set(
+  knitr::opts_knit$set(
     base.url = "/",
     base.dir = site.path)
-  opts_chunk$set(
+  knitr::opts_chunk$set(
     fig.path   = fig.dir,
     fig.width  = 8.5,
     fig.height = 5.25,
