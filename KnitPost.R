@@ -1,7 +1,8 @@
-KnitPost <- function(convert_file, date = Sys.Date(), 
+KnitPost <- function(convert_file, githubrepo, date = Sys.Date(), 
                      fig.dir = "figures") {
   # convert_file: name/path to specific Rmd file to convert
-  # date: String giving the date of the post in format "%Y-%m-%d"
+  # githubrepo: string giving your repository name ex: "privefl"
+  # date: string giving the date of the post in format "%Y-%m-%d"
   # fig.dir: directory to save figures
   
   # directory of blog's R project
@@ -54,6 +55,26 @@ KnitPost <- function(convert_file, date = Sys.Date(),
   lines <- gsub(pattern = "$", replacement = "$$", lines, fixed = TRUE)
   lines <- gsub(pattern = "$$$$", replacement = "\n\n$$\n\n", 
                 lines, fixed = TRUE)
+  
+  # get "header" separator
+  lines.sep <- grep("***", lines, fixed = TRUE)[1]
+  if (is.na(lines.sep)) {
+    lines.sep <- grep("---", lines, fixed = TRUE)[2]
+  }
+  # write ref to html from github
+  lines[lines.sep] <- paste0(lines[lines.sep], "\n\n", 
+                             "<div style=\"text-align:center\">\n",
+                             "<a target=\"_blank\" ",
+                             "href=\"https://htmlpreview.github.io/?",
+                             "https://github.com/",
+                             githubrepo,
+                             "/blog/blob/gh-pages/",
+                             sub(".Rmd", ".html", convert_file, fixed = TRUE),
+                             "\">View this as a standalone HTML page</a>\n",
+                             "</div>\n\n",
+                             "***\n\n")
+  
+  # replace file with new lines
   writeLines(lines, out.file, useBytes = TRUE)
   
   return("DONE")
