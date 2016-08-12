@@ -84,4 +84,4 @@ exclude:
   - LICENSE
   - README.md
   - CNAME
-  - KnitPost.R
+  - FormatPost.R
