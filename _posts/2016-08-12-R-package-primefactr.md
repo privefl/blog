@@ -11,9 +11,10 @@ output:
 
 ***
 
-<center>
-[View this as a standalone HTML page](https://github.com/privefl/blog/blob/gh-pages/_knitr/post-primefactr.html)
-</center>
+<div style="text-align:center">    
+  <a href="https://github.com/privefl/blog/blob/gh-pages/_knitr/post-primefactr.html">View this as a standalone HTML page</a>
+  <!-- more links here -->
+</div>
 
 ***
 
