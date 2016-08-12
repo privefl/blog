@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "R package primefactr"
+title:  "R package primefactr 2"
 author: "Florian Privé"
 date: "August 15, 2016"
 output: 
