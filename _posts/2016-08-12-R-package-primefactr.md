@@ -8,8 +8,12 @@ output:
     toc: yes
     toc_float: yes
 ---
+***
+
+[-> View this as a standalone HTML page <-](https://github.com/privefl/blog/blob/gh-pages/_knitr/post-primefactr.html)
 
 ***
+
 
 In this post, I will present my first R package. It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
 
