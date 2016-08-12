@@ -37,8 +37,20 @@ KnitPost <- function(convert_file, fig.dir = "figures") {
                          x = convert_file)))
   # KNITTING ====
   message(paste0("=== KnitPost(", convert_file, ")"))
-  knitr::knit(convert_file,
-              output = md.path,
-              envir = parent.frame(),
-              quiet = TRUE)
+  out.file <- knitr::knit(convert_file,
+                          output = md.path,
+                          envir = parent.frame(),
+                          quiet = TRUE)
+  
+  lines <- readLines(out.file, encoding = "UTF-8")
+  header <- grep("---", x = lines, fixed = TRUE)
+  lines[header[1]] <- paste0(lines[header[1]], "\n", "layout: post")
+  head(lines)
+  lines <- gsub(pattern = "$", replacement = "$$", lines, fixed = TRUE)
+  lines <- gsub(pattern = "$$$$", replacement = "\n\n$$\n\n", 
+                lines, fixed = TRUE)
+  writeLines(lines, out.file, useBytes = TRUE)
+  
+  return("DONE")
 }
+

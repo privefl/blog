@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "R package primefactr"
 author: "Florian Privé"
 date: "August 10, 2016"
@@ -29,11 +30,19 @@ library("primefactr")
 ### Main feature
 For instance, to compute 
 
+
+
 $$
+
+
 
 P(X = k) = \dfrac{\binom{K}{k}~\binom{N-K}{n-k}}{\binom{N}{n}} = \dfrac{K!~(N-K)!~n!~(N-n)!}{k!~(K-k)!~(n-k)!~(N-K-n+k)!~N!},
 
+
+
 $$
+
+
 
  you can use 
 
@@ -85,40 +94,136 @@ This uses a Prime Factorization to simplify computations.
 I code a number as follows,
 
 
+
+
 $$
+
+
 
 number = \prod i^{code[i]},
 
+
+
 $$
+
+
 
 
 or, which is equivalent,
 
 
+
+
 $$
+
+
 
 \log(number) = \sum code[i] \times \log(i).
 
+
+
 $$
+
+
 
 
 For example, 
 
-- $$5$$ is coded as (0, 0, 0, 0, 1),
-- $$5!$$ is coded as (1, 1, 1, 1, 1),
-- $$8!$$ is coded as (1, 1, 1, 1, 1, 1, 1, 1).
+- 
 
-So, to compute $$8! / 5!$$, you just have to substract the code of $$5!$$
-from the code of $$8!$$ which gives you (0, 0, 0, 0, 0, 1, 1, 1).
+$$
+
+5
+
+$$
+
+ is coded as (0, 0, 0, 0, 1),
+- 
+
+$$
+
+5!
+
+$$
+
+ is coded as (1, 1, 1, 1, 1),
+- 
+
+$$
+
+8!
+
+$$
+
+ is coded as (1, 1, 1, 1, 1, 1, 1, 1).
+
+So, to compute 
+
+$$
+
+8! / 5!
+
+$$
+
+, you just have to substract the code of 
+
+$$
+
+5!
+
+$$
+
+
+from the code of 
+
+$$
+
+8!
+
+$$
+
+ which gives you (0, 0, 0, 0, 0, 1, 1, 1).
 
 Then there is the step of Prime Factorization:
 
 Factorization by 2:
 
-- it becomes (0, 2, 1, 1, 0, 0, 1, 0) because $$8 = 4 \times 2$$ and $$6 = 3 \times 2$$,
-- then it becomes (0, 4, 1, 0, 0, 0, 1, 0) because $$4 = 2^2$$.
+- it becomes (0, 2, 1, 1, 0, 0, 1, 0) because 
 
-This is already finished (this is a small example). You get that $$8! / 5! = 2^4 \times 3^1 \times 7^1$$. Let us verify:
+$$
+
+8 = 4 \times 2
+
+$$
+
+ and 
+
+$$
+
+6 = 3 \times 2
+
+$$
+
+,
+- then it becomes (0, 4, 1, 0, 0, 0, 1, 0) because 
+
+$$
+
+4 = 2^2
+
+$$
+
+.
+
+This is already finished (this is a small example). You get that 
+
+$$
+
+8! / 5! = 2^4 \times 3^1 \times 7^1
+
+$$
+
+. Let us verify:
 
 {% highlight r %}
 cat(sprintf("%s == %s", factorial(8) / factorial(5), 2^4 * 3 * 7))
