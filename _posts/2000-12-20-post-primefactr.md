@@ -1,4 +1,5 @@
 ---
+layout: post
 title:  "R package primefactr"
 author: "Florian Privé"
 date: "August 10, 2016"
@@ -6,8 +7,8 @@ output:
   prettydoc::html_pretty:
     theme: cayman
     highlight: github
-    keep_md: true
 ---
+
 
 ***
 
@@ -17,11 +18,13 @@ This small R package was initially developed to compute [hypergeometric probabil
 
 ## Installation and Attachment
 
-```{r, eval=FALSE}
+
+```r
 ## Installation
 install.packages("primefactr")
 ```
-```{r, eval=TRUE}
+
+```r
 ## Attachment
 library("primefactr")
 ```
@@ -30,19 +33,36 @@ library("primefactr")
 
 ### Main feature
 For instance, to compute $$P(X = k) = \dfrac{\binom{K}{k}~\binom{N-K}{n-k}}{\binom{N}{n}} = \dfrac{K!~(N-K)!~n!~(N-n)!}{k!~(K-k)!~(n-k)!~(N-K-n+k)!~N!},$$ you can use 
-```{r}
+
+```r
 f <- function(k, N, K, n) {
   ComputeDivFact(c(K, (N-K), n, (N-n)),
                  c(k, (K-k), (n-k), (N-K-n+k), N))
 }
 f(4, 50, 5, 10)
+```
+
+```
+## [1] 0.003964583
+```
+
+```r
 f(5, 50, 5, 10)
+```
+
+```
+## [1] 0.0001189375
 ```
 You can check the results [here](https://en.wikipedia.org/wiki/Hypergeometric_distribution#Application_and_example).
 
 Let us now check large numbers:
-```{r}
+
+```r
 f(k = 1000, N = 15100, K = 5000, n = 3100)
+```
+
+```
+## [1] 0.009003809
 ```
 A direct approach would require computing `factorial(15100)`, while `factorial(100) = 9.332622e+157`.
 
@@ -72,8 +92,13 @@ Factorization by 2:
 - then it becomes (0, 4, 1, 0, 0, 0, 1, 0) because $4 = 2^2$.
 
 This is already finished (this is a small example). You get that $8! / 5! = 2^4 \times 3^1 \times 7^1$. Let us verify:
-```{r}
+
+```r
 cat(sprintf("%s == %s", factorial(8) / factorial(5), 2^4 * 3 * 7))
+```
+
+```
+## 336 == 336
 ```
 
 ### Play with primes
