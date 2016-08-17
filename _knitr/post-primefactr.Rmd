@@ -6,7 +6,7 @@ output:
   prettydoc::html_pretty:
     theme: cayman
     highlight: github
-    keep_md: true
+    self_contained: false
 ---
 
 In this post, I will present my first R package, [available on CRAN](https://cran.r-project.org/web/packages/primefactr/index.html). It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
