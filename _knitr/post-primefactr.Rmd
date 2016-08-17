@@ -6,7 +6,6 @@ output:
   prettydoc::html_pretty:
     theme: cayman
     highlight: github
-    self_contained: false
 ---
 
 In this post, I will present my first R package, [available on CRAN](https://cran.r-project.org/web/packages/primefactr/index.html). It makes use of [Prime Factorization](https://en.wikipedia.org/wiki/Prime_factor) for computations.
@@ -86,4 +85,4 @@ I had two notes:
 
 1. It is my first submission.
 2. File README.md cannot be checked without ‘pandoc’ being installed.
-For this note, I used the same comment as [here](https://github.com/klarsen1/Information/blob/master/cran-comments.md) and CRAN didn't complain.
+For this note, I used the same comment as [here](https://github.com/klarsen1/Information/blob/b3a826a6f8a38aa8c664156cef4f16edae196ec3/cran-comments.md#r-cmd-check-results) and CRAN didn't complain.

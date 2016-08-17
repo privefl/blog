@@ -5,6 +5,7 @@ layout: post
 ---
 
 
+
 <section class="main-content">
 <p>In this post, I will present my first R package, <a href="https://cran.r-project.org/web/packages/primefactr/index.html">available on CRAN</a>. It makes use of <a href="https://en.wikipedia.org/wiki/Prime_factor">Prime Factorization</a> for computations.</p>
 <p>This small R package was initially developed to compute <a href="https://en.wikipedia.org/wiki/Hypergeometric_distribution">hypergeometric probabilities</a> which are used in Fisher’s exact test, for instance. It was also a way to get introduced with CRAN submission :’).</p>
@@ -64,8 +65,7 @@ layout: post
 <p>It was easier than I thought. I’ve just followed the instructions of the book <a href="http://r-pkgs.had.co.nz/">R packages</a> by Hadley Wickham. I had two notes:</p>
 <ol style="list-style-type: decimal">
 <li>It is my first submission.</li>
-<li>File README.md cannot be checked without ‘pandoc’ being installed. For this note, I used the same comment as <a href="https://github.com/klarsen1/Information/blob/master/cran-comments.md">here</a> and CRAN didn’t complain.</li>
+<li>File README.md cannot be checked without â€˜pandocâ€™ being installed. For this note, I used the same comment as <a href="https://github.com/klarsen1/Information/blob/b3a826a6f8a38aa8c664156cef4f16edae196ec3/cran-comments.md#r-cmd-check-results">here</a> and CRAN didn’t complain.</li>
 </ol>
 </div>
 </section>
-
