@@ -1,1 +1,0 @@
-source("https://raw.githubusercontent.com/privefl/jekyll-now-r-template/gh-pages/FormatPost.R")
