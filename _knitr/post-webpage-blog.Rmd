@@ -1,0 +1,58 @@
+---
+title:  "A website & blog for R users"
+author: "Florian Privé"
+date: "August 19, 2016"
+output: 
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+In this post, I will show you how to quickly create your website, blog and first posts. This is designed __for R users only__.
+
+## Philosophy
+
+- This should be free.
+- This should be easy.
+- This should only need RStudio and GitHub.
+- __Every content should be previewable from RStudio.__
+
+### The website
+
+Follow [this tutorial](https://github.com/privefl/rmarkdown-website-template#make-your-website-with-r-markdown-in-minutes) to create your own website in minutes.
+
+I chose not to use a Jekyll-based template for the website because
+
+- you would need to configure a local install of Jekyll to preview your website,
+- using R Markdown to create your website is only natural for an R user.
+
+Thanks RStudio and GitHub pages!
+
+### The blog and first posts
+
+Follow [this tutorial](https://github.com/privefl/jekyll-now-r-template#add-a-blog-to-your-website-in-minutes) to create your own blog and get your first posts in minutes.
+
+I chose to use the [Jekyll Now template](https://github.com/barryclark/jekyll-now). I extended it so that posts have a similar rendering as an [HTML Pretty Document](http://statr.me/2016/08/creating-pretty-documents-with-the-prettydoc-package/) with theme "cayman" and highlight "github". I also created a function called `FormatPost` to convert an R Markdown document in your future post.
+
+Essentially, 
+
+- you create an R Markdown document from the template of package prettyjekyll,
+- you preview it as an HTML Pretty Document with RStudio's knit button,
+- when you are happy with the result, you use `FormatPost`,
+- you commit and push the changes from RStudio,
+- you go see your post on your blog.
+
+### Explanation
+
+The `FormatPost` function takes the main content of the HTML pretty document, puts it in some Markdown file with some YAML header. It also takes care of images' and figures' paths (note that caching is not supported).
+
+## An example
+
+You can see for example [my own website](https://privefl.github.io/).
+
+For example of posts,
+
+- see [this post](https://privefl.github.io/blog/R-package-primefactr/) and what was [its html preview in RStudio](https://htmlpreview.github.io/?https://github.com/privefl/blog/blob/gh-pages/_knitr/post-primefactr.html). 
+- see also [the html preview of this post](https://htmlpreview.github.io/?https://github.com/privefl/blog/blob/gh-pages/_knitr/post-webpage-blog.html).
+
+Pretty close, no?
