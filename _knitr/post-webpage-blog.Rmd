@@ -12,10 +12,10 @@ In this post, I will show you how to quickly create your website, blog and first
 
 ## Philosophy
 
-- This should be free.
-- This should be easy.
-- This should only need RStudio and GitHub.
-- __Every content should be previewable from RStudio.__
+- This had to be free.
+- This had to be easy.
+- This had to only need RStudio and GitHub.
+- __Every content had to be previewable from RStudio.__
 
 ### The website
 
@@ -32,13 +32,13 @@ Thanks RStudio and GitHub pages!
 
 Follow [this tutorial](https://github.com/privefl/jekyll-now-r-template#add-a-blog-to-your-website-in-minutes) to create your own blog and get your first posts in minutes.
 
-I chose to use the [Jekyll Now template](https://github.com/barryclark/jekyll-now). I extended it so that posts have a similar rendering as an [HTML Pretty Document](http://statr.me/2016/08/creating-pretty-documents-with-the-prettydoc-package/) with theme "cayman" and highlight "github". I also created a function called `FormatPost` to convert an R Markdown document in your future post.
+I chose to use the [Jekyll Now template](https://github.com/barryclark/jekyll-now). I extended it so that posts have a similar rendering as an [HTML Pretty Document](http://statr.me/2016/08/creating-pretty-documents-with-the-prettydoc-package/) with theme "cayman" and highlight "github". I also created a function called `FormatPost` to convert your R Markdown documents in your future posts.
 
 Essentially, 
 
 - you create an R Markdown document from the template of package prettyjekyll,
 - you preview it as an HTML Pretty Document with RStudio's knit button,
-- when you are happy with the result, you use `FormatPost`,
+- when you are happy with the result, you use `FormatPost` on the Rmd file,
 - you commit and push the changes from RStudio,
 - you go see your post on your blog.
 
@@ -46,7 +46,7 @@ Essentially,
 
 The `FormatPost` function takes the main content of the HTML pretty document, puts it in some Markdown file with some YAML header. It also takes care of images' and figures' paths (note that caching is not supported).
 
-## An example
+## Examples
 
 You can see for example [my own website](https://privefl.github.io/).
 
