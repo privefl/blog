@@ -1,0 +1,151 @@
+---
+title: "On decision boundaries of tests-V2"
+author: "Florian Privé"
+date: "August 4, 2016"
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+bibliography: bibliography.bib
+---
+
+In this post, I will talk about an alternative way to choose quantiles for tests, those you choose in order to have a 95% confidence interval (5% of type-I error). 
+I will then show that this idea can be used to combine tests.
+I will show some illustrations in R.
+
+## Example with the chi-squared distribution
+
+Say that you have a test whose values under the null hypothesis ($H_0$) follow a chi-squared distribution with 10 degrees of freedom ($\chi_{10}^2$).
+
+You can choose
+
+* to reject $H_0$ only for the largest values of the statistic with significance $\alpha = 5\%$, which means rejecting the null hypothesis for values that are larger than the 95-percentile:
+
+```{r, out.width=500, echo=FALSE, fig.align='center', fig.cap="One-tailed test"}
+knitr::include_graphics("../images/post-tests/chi-squared_test2.jpg")
+```
+
+* or to reject $H_0$ for both largest and smallest values of the statistic. Indeed, smallest values could be considered "too good to be true" [@stuart1954]. Then, $H_0$ is rejected for values smaller than the 2.5-percentile or larger than the 97.5-percentile:
+
+```{r, out.width=500, echo=FALSE, fig.align='center', fig.cap="Two-tailed test"}
+knitr::include_graphics("../images/post-tests/chi-squared_test1.jpg")
+```
+
+__Why choosing? Why not letting the test choose by itself?__ 
+
+What do I mean by this? If you make the boundary on the values of the density of the test statistic (y-axis), not on the values (x-axis), you always obtain a one-tailed test whatever is the distribution of the test statistic. You then reject all values that have a corresponding density lower than the 5-percentile. 
+
+Let's see what this means in image:
+
+```{r, out.width=500, echo=FALSE, fig.align='center', fig.cap="Always a one-tailed test, but with respect to the y-axis"}
+knitr::include_graphics("../images/post-tests/chi-squared_test3.jpg")
+```
+
+I see this as __rejecting the 5\% less probable values__ ("probable" in terms of the test statistic's density).
+
+## More convincing: application to the combination of tests
+
+Combining tests may be a way to create a more powerful or robust test.
+
+### First example: application in reliability
+
+Say that you have two goodness-of-fit test statistic for the Weibull distribution (GOFW) (a well-known distribution in survival analysis). How to combine them? A priori, the best way I can see is to use their joint distribution. This 2D distribution has a density, as before, so we can find a threshold so that only 5% of the values of this distribution have a density under this threshold. This threshold is also called a 95%-contour.
+
+Again, an image will be clearer than words. I drew several samples of size 50 from the Weibull distribution and three alternatives to the Weibull distribution: the Gamma, Log-Normal and Dhillon I distribution. For all these samples, I computed the corresponding values of the two GOFWs, and I plotted these paired values:
+
+```{r, out.width=600, echo=FALSE, fig.align='center'}
+knitr::include_graphics("../images/post-tests/combi.jpg")
+```
+
+So, in black are the pair's values for several samples of the weibull distribution (the null hypothesis) and the alternatives are spread around. We have also in black the 95%-contour for $H_0$. So, points outside of this boundary correspond to samples for which we reject the null hypothesis. 
+
+This gave the most powerful test for the Weibull distribution (you'll have to believe me). See the second example below for an example with R code.
+
+### Second example: application in genomics
+
+#### Introduction
+
+Cochran-Armitage Trend Tests (CATT) is well used in genomics to test for association between a single marker and a disease [@Zheng2012, section 3.3.1]. When the true genetic model is respectively the REC, ADD,
+or DOM model, the trend test ZCATT(x), where x = 0, x = 1/2, or x = 1 respectively, gives powerful tests. Yet, the true model is generally unknown and choosing one specific value of x can lead to poor powers for some alternative models. 
+
+Then, the MAX3 statistic defined by $$MAX3 = \max\{|ZCATT(0)|, |ZCATT(1/2)|, |ZCATT(1)|\}$$ can be used to have a more robust test (the power of the test remains good whatever is the underlying model). Yet, we could make another robust test based on the idea of the previous section.
+
+#### Simulation of values for these three statistics
+
+I followed the algorithm detailed in [@Zheng2012, section 3.9.1] to simulate contingency tables under different parameters as, for example, the genotype relative risk (GRR) $\lambda_2$, the genetic model, the minor allele frequency (MAF) $p$, etc.
+
+```{r}
+source("D:/Projets/blog/code/simu_counts.R")
+source("D:/Projets/blog/code/ZCATT.R")
+```
+
+Let us plot these three statistics' values in 3D:
+
+```{r, collapse=FALSE}
+pacman::p_load(rgl, rglwidget) 
+
+models <- c("REC", "ADD", "DOM")
+lambda2 <- c(0.5, 2)
+NSIM <- 1e3
+
+counts <- simu_counts(nsim = NSIM)
+simus <- sapply(c(0, 0.5, 1), function(x) ZCATT(counts, x = x))
+rgl::plot3d(x = simus, size = 5, xlab = "ZCATT(0)",
+            ylab = "ZCATT(1/2)", zlab = "ZCATT(1)")
+for (lam2 in lambda2) {
+  for (i in 1:length(models)) {
+    counts <- simu_counts(nsim = NSIM, model = models[i], lam2 = lam2)
+    simus <- sapply(c(0, 0.5, 1), function(x) ZCATT(counts, x = x))
+    rgl::plot3d(x = simus, col = i+1, add = TRUE)
+  }
+}
+rglwidget()
+```
+
+We can see the three statistics' values for the different models (H0: black, REC: red, ADD: green, DOM: blue) are almost on a same plane. One idea would be to project these values in 2D with a Principal Component Analysis (PCA).
+
+```{r}
+PCH <- 19
+CEX <- 0.6
+
+counts <- simu_counts(nsim = NSIM)
+simus <- sapply(c(0, 0.5, 1), function(x) ZCATT(counts, x = x))
+# in cases where counts of 2 are 0 for controls and cases,
+# replace NA by 0 (for ZCATT(0))
+pca <- prcomp(replace(simus, is.na(simus), 0))
+plot(pca$x, pch = PCH, cex = CEX, lwd = 3, main = "Projection 3D -> 2D with PCA")
+for (lam2 in lambda2) {
+  for (i in 1:length(models)) {
+    counts <- simu_counts(nsim = NSIM, model = models[i], lam2 = lam2)
+    simus <- sapply(c(0, 0.5, 1), function(x) ZCATT(counts, x = x))
+    pred <- predict(pca, replace(simus, is.na(simus), 0))
+    points(pred[, 1:2], col = i+1, pch = PCH, cex = CEX)
+  }
+}
+```
+
+### How to get the 95%-contour for H0?
+
+```{r}
+pacman::p_load(ks) 
+
+# 100,000 Monte Carlo (MC) simulations
+counts <- simu_counts(nsim = 1e5) 
+simus <- sapply(c(0, 0.5, 1), function(x) ZCATT(counts, x = x))
+pca <- prcomp(replace(simus, is.na(simus), 0))
+plot(pca$x[1:NSIM, ], pch = PCH)
+k <- ks::kde(x = pca$x[, 1:2])
+plot(k, cont = 95, lwd = 4, add = T, col = "red")
+```
+
+### Get the results of this new test
+
+
+
+## Conlusion
+
+We have seen how to use density to get robust and powerful tests, without any subjective choice.
+
+In practive, this works well with approximately normally distributed statistics because it's then easy to get a non-parametric estimation of the density via the use of a Gaussian Kernel (what does `kde`).
+
+## References
