@@ -1,5 +1,5 @@
 ### ALGO p84
-simu_counts <- function(nsim = 1e5, r = 500, s = 500, k = 0.1, 
+simu_counts <- function(nsim = 1e5, r = 500, s = r, k = 0.1, 
                  p = 0.1, F = 0, lam2 = 1, model = "ADD") {
   # g0 = q^2 + pqF, g1 = 2pq(1− F), and g2 = p^2 + pqF (p62)
   q <- 1 - p
@@ -7,8 +7,8 @@ simu_counts <- function(nsim = 1e5, r = 500, s = 500, k = 0.1,
   g1 = 2*p*q*(1 - F)
   g2 = p^2 + p*q*F
   
-  # REC: λ1 = 1, ADD: λ1 = (1 + λ2)/2, MUL: λ1 = λ2^(1/2)
-  # and DOM: λ1 = λ2 (p63)
+  # REC: lambda1 = 1, ADD: lambda1 = (1 + lambda2)/2, 
+  # MUL: lambda1 = lambda2^(1/2) and DOM: lambda1 = lambda2 (p63)
   if (model == "REC") {
     lam1 <- 1
   } else if (model == "ADD") {
@@ -21,7 +21,7 @@ simu_counts <- function(nsim = 1e5, r = 500, s = 500, k = 0.1,
     stop("Choose model within RED, ADD, MUL or DOM")
   }
   
-  # f0 = k/(g0 + λ1g1 + λ2g2), f1 = λ1f0, and f2 = λ2f0;
+  # f0 = k/(g0 + lambda1 g1 + lambda2 g2), f1 = lambda1 f0, and f2 = lambda2 f0;
   f0 <- k/(g0 + lam1*g1 + lam2*g2)
   f1 <- lam1*f0
   f2 <- lam2*f0
