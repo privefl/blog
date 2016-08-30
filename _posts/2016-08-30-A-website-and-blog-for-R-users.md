@@ -1,5 +1,5 @@
 ---
-title:  "A website & blog for R users"
+title:  "A website and blog for R users"
 author: "Florian Privé"
 date: "August 19, 2016"
 layout: post
