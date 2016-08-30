@@ -1,7 +1,7 @@
 ---
 title:  "R package primefactr"
 author: "Florian Privé"
-date: "August 10, 2016"
+date: "August 30, 2016"
 layout: post
 ---
 
