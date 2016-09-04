@@ -1,6 +1,6 @@
 ### ALGO p84
 simu_counts <- function(nsim = 1e5, r = 500, s = r, k = 0.1, 
-                 p = 0.1, F = 0, lam2 = 1, model = "ADD") {
+                 p = 0.1, F = 0, lam2 = 1, model = "NULL") {
   # g0 = q^2 + pqF, g1 = 2pq(1− F), and g2 = p^2 + pqF (p62)
   q <- 1 - p
   g0 <- q^2 + p*q*F
@@ -9,7 +9,9 @@ simu_counts <- function(nsim = 1e5, r = 500, s = r, k = 0.1,
   
   # REC: lambda1 = 1, ADD: lambda1 = (1 + lambda2)/2, 
   # MUL: lambda1 = lambda2^(1/2) and DOM: lambda1 = lambda2 (p63)
-  if (model == "REC") {
+  if (model == "NULL") {
+    lam1 <- lam2 <- 1
+  } else if (model == "REC") {
     lam1 <- 1
   } else if (model == "ADD") {
     lam1 <- (1 + lam2)/2
@@ -18,7 +20,7 @@ simu_counts <- function(nsim = 1e5, r = 500, s = r, k = 0.1,
   } else if (model == "DOM") {
     lam1 <- lam2
   } else {
-    stop("Choose model within RED, ADD, MUL or DOM")
+    stop("Choose model within NULL, RED, ADD, MUL or DOM")
   }
   
   # f0 = k/(g0 + lambda1 g1 + lambda2 g2), f1 = lambda1 f0, and f2 = lambda2 f0;
