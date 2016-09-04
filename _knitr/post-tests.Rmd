@@ -147,7 +147,7 @@ The problem, I think, is that the 2D or 3D distribution of the statistics' value
 
 ## Conlusion
 
-We have seen how to use density to get robust and powerful tests, without any subjective choice.
+We have seen how to use density to get robust and powerful tests, without any subjective choice. We have also visualized some combination of tests and directly assessed from plots the powers of tests for multiple alternatives.
 
 In practive, this works well with approximately normally distributed statistics because it's then easy to get a non-parametric estimation of the density via the use of a Gaussian Kernel (what does `kde`).
 
