@@ -1,7 +1,7 @@
 ---
 title: "Showing a different approach to making statistical tests"
 author: "Florian Privé"
-date: "September 4, 2016"
+date: "September 6, 2016"
 output:                    # DO NOT CHANGE
   prettydoc::html_pretty:  # DO NOT CHANGE
     theme: cayman          # DO NOT CHANGE
