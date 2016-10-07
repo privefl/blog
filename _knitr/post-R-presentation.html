@@ -85,7 +85,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="get-results-automatically" class="section level2">
 <h2>Get results automatically</h2>
-<p>As I was writing my R Markdown presentation while they were answering the google form, I decided that I should get (and show) the results automatically (only by re-knitting by presentation).</p>
+<p>As I was writing my R Markdown presentation while they were answering the google form, I decided that I should get (and show) the results automatically (only by re-knitting my presentation).</p>
 <div id="to-get-the-results" class="section level3">
 <h3>To get the results</h3>
 <p>I used the <code>gsheet</code> package (one could also use the <code>googlesheets</code> package):</p>
@@ -126,7 +126,7 @@ for (n in counts.lvl) {
 </div>
 <div id="getting-the-number-of-r-packages-on-cran" class="section level3">
 <h3>Getting the number of R packages on CRAN</h3>
-<p>I would like to show them how many package we had on CRAN, so I used:</p>
+<p>I also wanted to show them how many package we had on CRAN, so I used:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n &lt;-<span class="st"> </span><span class="kw">readLines</span>(<span class="st">'https://cran.r-project.org/web/packages/'</span>) %&gt;%
 <span class="st">  </span>gsubfn::<span class="kw">strapply</span>(
     <span class="kw">paste</span>(<span class="st">&quot;Currently, the CRAN package repository&quot;</span>,

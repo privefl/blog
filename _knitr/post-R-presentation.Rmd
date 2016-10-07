@@ -70,7 +70,7 @@ in order to generate markdown from R code.
 
 ### Getting the number of R packages on CRAN
 
-I would like to show them how many package we had on CRAN, so I used:
+I also wanted to show them how many package we have on CRAN, so I used:
 ```{r, eval=FALSE}
 n <- readLines('https://cran.r-project.org/web/packages/') %>%
   gsubfn::strapply(
