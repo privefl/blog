@@ -82,7 +82,7 @@ and printed `n` as inline R code.
 
 ## Conclusion
 
-You can see the presentation [there](privefl.github.io/R-presentation/pResentation.html) and the corresponding Rmd file [there](privefl.github.io/R-presentation/pResentation.Rmd).
+You can see the presentation [there](https://privefl.github.io/R-presentation/pResentation.html) and the corresponding Rmd file [there](https://privefl.github.io/R-presentation/pResentation.Rmd).
 
 After finishing my presentation, I realized that most of what I presented, I learned it on R-bloggers. So, thanks everyone for the wonderful posts we get to read everyday!
 

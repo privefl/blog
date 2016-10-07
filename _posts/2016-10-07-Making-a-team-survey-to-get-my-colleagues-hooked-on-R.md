@@ -68,7 +68,7 @@ for (n in counts.lvl) {
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
-<p>You can see the presentation <a href="privefl.github.io/R-presentation/pResentation.html">there</a> and the corresponding Rmd file <a href="privefl.github.io/R-presentation/pResentation.Rmd">there</a>.</p>
+<p>You can see the presentation <a href="https://privefl.github.io/R-presentation/pResentation.html">there</a> and the corresponding Rmd file <a href="https://privefl.github.io/R-presentation/pResentation.Rmd">there</a>.</p>
 <p>After finishing my presentation, I realized that most of what I presented, I learned it on R-bloggers. So, thanks everyone for the wonderful posts we get to read everyday!</p>
 <p>If some of you think about other things that are important to know about R, I’d like to hear about them, just as personal curiosity.</p>
 </div>
