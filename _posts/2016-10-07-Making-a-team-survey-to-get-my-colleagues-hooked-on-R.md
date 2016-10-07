@@ -16,7 +16,7 @@ layout: post
 </div>
 <div id="get-results-automatically" class="section level2">
 <h2>Get results automatically</h2>
-<p>As I was writing my R Markdown presentation while they were answering the google form, I decided that I should get (and show) the results automatically (only by re-knitting my presentation).</p>
+<p>Because I was writing my R Markdown presentation while they were answering the google form, I decided that I should get (and show) the results automatically (only by re-knitting my presentation).</p>
 <div id="to-get-the-results" class="section level3">
 <h3>To get the results</h3>
 <p>I used the <code>gsheet</code> package (one could also use the <code>googlesheets</code> package):</p>

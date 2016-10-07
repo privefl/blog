@@ -21,7 +21,7 @@ It was the way to get sure that they would care.
 
 ## Get results automatically
 
-As I was writing my R Markdown presentation while they were answering the google form, I decided that I should get (and show) the results automatically (only by re-knitting my presentation).
+Because I was writing my R Markdown presentation while they were answering the google form, I decided that I should get (and show) the results automatically (only by re-knitting my presentation).
 
 ### To get the results
 
