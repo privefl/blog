@@ -57,7 +57,7 @@ for (n in counts.lvl) {
 </div>
 <div id="getting-the-number-of-r-packages-on-cran" class="section level3">
 <h3>Getting the number of R packages on CRAN</h3>
-<p>I would like to show them how many package we had on CRAN, so I used:</p>
+<p>I also wanted to show them how many package we had on CRAN, so I used:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n &lt;-<span class="st"> </span><span class="kw">readLines</span>(<span class="st">&#39;https://cran.r-project.org/web/packages/&#39;</span>) %&gt;%
 <span class="st">  </span>gsubfn::<span class="kw">strapply</span>(
     <span class="kw">paste</span>(<span class="st">&quot;Currently, the CRAN package repository&quot;</span>,
