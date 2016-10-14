@@ -83,7 +83,7 @@ If you're not familiar with this notation, I suggest you read [the chapter about
 
 ## Benchmarks
 
-## Reimplementing 'abs'
+### Reimplementing 'abs'
 
 ```{r}
 abs2 <- function(x) {
@@ -102,7 +102,7 @@ print(microbenchmark(
 ))
 ```
 
-## Comparing with C++
+### Comparing with C++
 
 Consider the Rcpp Sugar example again, 4 means to compute it:
 

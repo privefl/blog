@@ -70,9 +70,8 @@ layout: post
 </div>
 <div id="benchmarks" class="section level2">
 <h2>Benchmarks</h2>
-</div>
-<div id="reimplementing-abs" class="section level2">
-<h2>Reimplementing ‘abs’</h2>
+<div id="reimplementing-abs" class="section level3">
+<h3>Reimplementing ‘abs’</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">abs2 &lt;-<span class="st"> </span>function(x) {
   <span class="kw">ifelse</span>(x &lt;<span class="st"> </span><span class="dv">0</span>, -x, x)
 }
@@ -86,12 +85,12 @@ x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="fl">1
   <span class="kw">abs2</span>(x)
 ))</code></pre></div>
 <pre><code>## Unit: microseconds
-##     expr     min       lq      mean  median      uq      max neval
-##   abs(x)   3.642   5.2970  21.77894   7.284  10.926 1335.935   100
-##  abs2(x) 490.009 517.1575 830.57410 546.790 743.290 2705.640   100</code></pre>
+##     expr     min       lq       mean  median       uq      max neval
+##   abs(x)   3.973   6.1255   51.84497  10.595   13.078 2046.446   100
+##  abs2(x) 499.610 536.8570 1139.15674 765.307 1289.582 5818.186   100</code></pre>
 </div>
-<div id="comparing-with-c" class="section level2">
-<h2>Comparing with C++</h2>
+<div id="comparing-with-c" class="section level3">
+<h3>Comparing with C++</h3>
 <p>Consider the Rcpp Sugar example again, 4 means to compute it:</p>
 <div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="ot">#include &lt;Rcpp.h&gt;</span>
 <span class="kw">using</span> <span class="kw">namespace</span> Rcpp;
@@ -139,12 +138,13 @@ y &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="fl">1
   <span class="kw">fooRcppSugar</span>(x, y)
 ))</code></pre></div>
 <pre><code>## Unit: microseconds
-##                expr     min       lq       mean   median       uq       max neval
-##           foo(x, y) 513.846 536.5260 1554.94874 549.9350 621.2840 76247.941   100
-##          foo2(x, y)  70.191  77.1435  200.42337  84.2625  94.1940  1735.225   100
-##       fooRcpp(x, y)  40.392  44.2000   56.09938  46.5180  50.3250   794.277   100
-##  fooRcppSugar(x, y) 137.070 140.7120  174.62848 142.8640 161.5705  1447.511   100</code></pre>
+##                expr     min      lq      mean   median       uq      max neval
+##           foo(x, y) 505.570 543.313 901.08903 573.9390 816.1285 2479.178   100
+##          foo2(x, y)  69.860  78.302 182.46201  87.2415 101.1465 1552.797   100
+##       fooRcpp(x, y)  40.062  45.359  53.27192  48.6700  56.4505  103.300   100
+##  fooRcppSugar(x, y) 137.401 141.374 179.29676 142.6990 152.1345 1572.662   100</code></pre>
 <p>Even if it is a vectorized base R function, <code>ifelse</code> is known to be slow.</p>
+</div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
