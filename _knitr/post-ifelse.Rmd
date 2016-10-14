@@ -1,0 +1,174 @@
+---
+title: "On the ifelse function"
+author: "Florian Privé"
+date: "October 15, 2016" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+In this post, I will talk about the [**ifelse** function](https://stat.ethz.ch/R-manual/R-devel/library/base/html/ifelse.html), which behaviour can be easily misunderstood, as pointed out in [my latest question on SO](http://stackoverflow.com/questions/40026975/subsetting-with-negative-indices-best-practices). I will try to show how it can be used, and misued. We will also check if it is as fast as we could expect from a vectorized base function of R.
+
+```{r setup, include=FALSE}
+options(width = 85)
+```
+
+
+## How can it be used?
+
+The first example comes directly from the R documentation:
+
+```{r}
+x <- c(6:-4)
+sqrt(x)  #- gives warning
+sqrt(ifelse(x >= 0, x, NA))  # no warning
+```
+So, it can be used, for instance, to handle special cases, in a vectorized, succinct way.
+
+The second example comes from the [vignette of Rcpp Sugar](https://cran.r-project.org/web/packages/Rcpp/vignettes/Rcpp-sugar.pdf):
+
+```{r}
+foo <- function(x, y) {
+  ifelse(x < y, x*x, -(y*y))
+}
+foo(1:5, 5:1)
+```
+
+So, it can be used to construct a vector, by doing an element-wise comparison of two vectors, and specifying a custom output for each comparison.
+
+A last example, just for the pleasure:
+```{r}
+(a <- matrix(1:9, 3, 3))
+ifelse(a %% 2 == 0, a, 0)
+```
+
+## How can it be misused?
+
+I think many people think they can use `ifelse` as a shorter way of writing an `if-then-else` statement (this is a mistake I made). For example, I use:
+```{r, eval=FALSE}
+legend.pos <- ifelse(is.top, ifelse(is.right, "topright", "topleft"),
+                     ifelse(is.right, "bottomright", "bottomleft"))
+```
+instead of:
+```{r, eval=FALSE}
+if (is.top) {
+  if (is.right) {
+    legend.pos <- "topright"
+  } else {
+    legend.pos <- "topleft"
+  }
+} else {
+  if (is.right) {
+    legend.pos <- "bottomright"
+  } else {
+    legend.pos <- "bottomleft"
+  }
+}
+```
+
+That works, but this doesn't:
+```{r}
+ifelse(FALSE, 0, 1:5)
+```
+
+Indeed, if you read carefully the R documentation, you see that `ifelse` is returning a vector of the same length and attributes as the condition (here, of length 1).
+
+If you really want to use a more succinct notation, you could use 
+```{r}
+`if`(FALSE, 0, 1:5)
+```
+
+If you're not familiar with this notation, I suggest you read [the chapter about functions in book _Advanced R_](http://adv-r.had.co.nz/Functions.html).
+
+## Benchmarks
+
+## Reimplementing 'abs'
+
+```{r}
+abs2 <- function(x) {
+  ifelse(x < 0, -x, x)
+}
+abs2(-5:5)
+```
+
+```{r}
+library(microbenchmark)
+x <- rnorm(1e4)
+
+print(microbenchmark(
+  abs(x), 
+  abs2(x)
+))
+```
+
+## Comparing with C++
+
+Consider the Rcpp Sugar example again, 4 means to compute it:
+
+```{r engine='Rcpp'}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector fooRcpp(const NumericVector& x, const NumericVector& y) {
+  int n = x.size();
+  NumericVector res(n);
+  double x_, y_;
+  for (int i = 0; i < n; i++) { 
+    x_ = x[i];
+    y_ = y[i];
+    if (x_ < y_) {
+      res[i] = x_*x_;
+    } else {
+      res[i] = -(y_*y_);
+    }
+  }
+  return res;
+}
+```
+
+```{r}
+fooRcpp(1:5, 5:1)
+```
+
+```{r engine='Rcpp'}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector fooRcppSugar(const NumericVector& x, 
+                           const NumericVector& y) {
+  return ifelse(x < y, x*x, -(y*y));
+}
+```
+
+```{r}
+fooRcppSugar(1:5, 5:1)
+```
+
+```{r}
+foo2 <- function(x, y) {
+  cond <- (x < y)
+  cond * x^2 - (1 - cond) * y^2
+}
+foo2(1:5, 5:1)
+```
+
+
+```{r}
+x <- rnorm(1e4)
+y <- rnorm(1e4)
+print(microbenchmark(
+  foo(x, y),
+  foo2(x, y),
+  fooRcpp(x, y),
+  fooRcppSugar(x, y)
+))
+```
+
+Even if it is a vectorized base R function, `ifelse` is known to be slow.
+
+## Conclusion
+
+Beware when you use the `ifelse` function. Moreover, if you make a substantial number of calls to it, be aware that it isn't very fast, but it exists at least 3 faster alternatives to it.
