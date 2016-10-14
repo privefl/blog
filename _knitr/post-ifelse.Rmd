@@ -11,7 +11,7 @@ output:                    # DO NOT CHANGE
 In this post, I will talk about the [**ifelse** function](https://stat.ethz.ch/R-manual/R-devel/library/base/html/ifelse.html), which behaviour can be easily misunderstood, as pointed out in [my latest question on SO](http://stackoverflow.com/questions/40026975/subsetting-with-negative-indices-best-practices). I will try to show how it can be used, and misued. We will also check if it is as fast as we could expect from a vectorized base function of R.
 
 ```{r setup, include=FALSE}
-options(width = 85)
+options(width = 90)
 ```
 
 

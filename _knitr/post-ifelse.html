@@ -154,9 +154,9 @@ x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="fl">1
   <span class="kw">abs2</span>(x)
 ))</code></pre></div>
 <pre><code>## Unit: microseconds
-##     expr     min      lq       mean   median      uq       max neval
-##   abs(x)   3.642   4.304   22.82193   5.2970   6.291   972.401   100
-##  abs2(x) 492.988 516.826 1038.51964 546.4585 847.582 35643.137   100</code></pre>
+##     expr     min       lq       mean  median       uq      max neval
+##   abs(x)   3.642   4.3045   30.35074   5.297   7.4495   569.80   100
+##  abs2(x) 489.015 505.4035 1058.88160 537.685 976.5400 35705.71   100</code></pre>
 </div>
 <div id="comparing-with-c" class="section level3">
 <h3>Comparing with C++</h3>
@@ -208,10 +208,10 @@ y &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="fl">1
 ))</code></pre></div>
 <pre><code>## Unit: microseconds
 ##                expr     min       lq       mean   median       uq       max neval
-##           foo(x, y) 500.272 525.6005 1213.25068 603.7365 932.8370 45657.848   100
-##          foo2(x, y)  69.528  73.0045  176.57854  80.1230 129.7855  1064.775   100
-##       fooRcpp(x, y)  40.724  44.0345   64.64808  45.6900  52.1465   858.839   100
-##  fooRcppSugar(x, y) 137.401 141.3740  160.58378 142.3680 158.2600   524.773   100</code></pre>
+##           foo(x, y) 486.035 509.3770 1110.64691 594.9630 923.5660 38080.267   100
+##          foo2(x, y)  68.204  70.8520  151.03853  76.4815 125.9790  1080.667   100
+##       fooRcpp(x, y)  38.406  42.0485   54.12285  43.5380  46.1865   910.157   100
+##  fooRcppSugar(x, y) 136.739 141.0430  159.07729 141.7050 147.4990  1112.782   100</code></pre>
 <p>Even if it is a vectorized base R function, <code>ifelse</code> is known to be slow.</p>
 </div>
 </div>
