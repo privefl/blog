@@ -1,0 +1,89 @@
+---
+title: "Making a team survey to get my colleagues hooked on R"
+author: "Florian Privé"
+date: "2016-10-07"
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+In this post, I will talk about the presentation of R that I did today, in the first week of my PhD. 
+Usually, it is a team-only presentation. Yet, other people came because they were interested in learning more about R.
+
+## How I get this idea?
+
+I get the idea of doing an R presentation while reading [Getting Your Colleagues Hooked on R](https://www.r-bloggers.com/getting-your-colleagues-hooked-on-r/) on [R-bloggers](https://www.r-bloggers.com/).
+I began by following the 7 tips of this post to make my presentation, which was a good starting point.
+
+After a while, I feared that a general presentation would not get my team interested in R. So, I decided to set up a [google form](https://goo.gl/forms/LREeX5NORBJlCrcC3) and ask them what they wanted to learn about R.
+It was the way to get sure that they would care.
+
+## Get results automatically
+
+Because I was writing my R Markdown presentation while they were answering the google form, I decided that I should get (and show) the results automatically (only by re-knitting my presentation).
+
+### To get the results
+
+I used the `gsheet` package (one could also use the `googlesheets` package):
+```{r, eval=FALSE}
+library(pacman)
+p_load(magrittr, longurl, gsheet)
+
+responses <- "goo.gl/4zYmrw" %>% expand_urls %>% {gsheet2tbl(.$expanded_url)[, 2]}
+```
+
+
+### To get the different possible choices of the form
+
+I got them directly from reading the website of the google form:
+```{r, eval=FALSE}
+p_load(gsubfn, stringr)
+
+questions <- 
+  "https://goo.gl/forms/LREeX5NORBJlCrcC3" %>%
+  readLines(encoding = "UTF-8") %>%
+  strapply(pattern = "\\[\"([^\"]*)\",,,,0\\]") %>%
+  unlist
+```
+I couldn't get them directly from the googlesheet because google doesn't make the difference between a comma in the name of the choices and commas used to seperate multiple answers. If you know how to specify the separation when generating results from a google form, I'd like to know.
+
+### To print the results directly in my presentation
+
+I used the chunk option `results='asis'`:
+```{r, eval=FALSE}
+counts <- str_count(responses, coll(questions))
+counts.lvl <- counts %>% unique %>% sort(decreasing = TRUE) %>% setdiff(0)
+
+printf <- function(...) cat(sprintf(...))
+
+for (n in counts.lvl) {
+  if (n == 2) printf("\n***\n")
+  printf("- for **%d** of you:\n", n)
+  q.tmp <- questions[counts == n]
+  for (q in q.tmp) {
+    printf("    - %s\n", q)
+  }
+}
+```
+in order to generate markdown from R code.
+
+### Getting the number of R packages on CRAN
+
+I also wanted to show them how many package we have on CRAN, so I used:
+```{r, eval=FALSE}
+n <- readLines('https://cran.r-project.org/web/packages/') %>%
+  gsubfn::strapply(
+    paste("Currently, the CRAN package repository",
+          "features ([0-9]+) available packages.")) %>%
+  unlist
+```
+and printed `n` as inline R code.
+
+## Conclusion
+
+You can see the presentation [there](https://privefl.github.io/R-presentation/pResentation.html) and the corresponding Rmd file [there](https://privefl.github.io/R-presentation/pResentation.Rmd).
+
+After finishing my presentation, I realized that most of what I presented, I learned it on R-bloggers. So, thanks everyone for the wonderful posts we get to read everyday!
+
+If some of you think about other things that are important to know about R, I'd like to hear about them, just as personal curiosity.
