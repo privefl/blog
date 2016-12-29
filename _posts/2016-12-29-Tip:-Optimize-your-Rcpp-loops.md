@@ -129,7 +129,7 @@ NumericVector prod4(XPtr&lt;BigMatrix&gt; bMPtr, <span class="dt">const</span> N
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">all.equal</span>(test1, test2))</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p>Nice! Let’s try more. Why not using 8 or 16 rather than 4?</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Rcpp::<span class="kw">sourceCpp</span>(<span class="st">&#39;../code/prods.cpp&#39;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Rcpp::<span class="kw">sourceCpp</span>(<span class="st">&#39;{{ site.url }}{{ site.baseurl }}/code/prods.cpp&#39;</span>)
 
 <span class="kw">print</span>(bench &lt;-<span class="st"> </span><span class="kw">microbenchmark</span>(
   <span class="dt">PROD1 =</span> <span class="kw">prod1</span>(X@address, y),
@@ -161,9 +161,9 @@ step &lt;-<span class="st"> </span><span class="dv">2</span>^(<span class="dv">0
 </div>
 <div id="appendix" class="section level2">
 <h2>Appendix</h2>
-<p>You can do a <code>big.matrix</code>-vector multiplication easily with <code>RcppEigen</code> or <code>RcppArmadillo</code> (see <a href="../prods2.cpp">this code</a>) but it lacks of efficient subsetting option.</p>
+<p>You can do a <code>big.matrix</code>-vector multiplication easily with <code>RcppEigen</code> or <code>RcppArmadillo</code> (see <a href="{{ site.url }}{{ site.baseurl }}/prods2.cpp">this code</a>) but it lacks of efficient subsetting option.</p>
 <p>Indeed, you still can’t use subsetting in <code>Eigen</code>, but this will come as said in <a href="http://eigen.tuxfamily.org/bz/show_bug.cgi?id=329">this feature request</a>. For <code>Armadillo</code>, you can but it is rather slow:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Rcpp::<span class="kw">sourceCpp</span>(<span class="st">&#39;../code/prods2.cpp&#39;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Rcpp::<span class="kw">sourceCpp</span>(<span class="st">&#39;{{ site.url }}{{ site.baseurl }}/code/prods2.cpp&#39;</span>)
 
 n &lt;-<span class="st"> </span><span class="kw">nrow</span>(X)
 ind &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">sample</span>(n, <span class="dt">size =</span> n/<span class="dv">2</span>))
