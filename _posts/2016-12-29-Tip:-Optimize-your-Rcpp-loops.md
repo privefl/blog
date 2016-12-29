@@ -16,9 +16,9 @@ layout: post
 <p>For this post, I will use a <code>big.matrix</code> which represents genotypes for 15,283 individuals, corresponding to the number of mutations (0, 1 or 2) at 287,155 different loci. Here, I will use only the first 10,000 loci (columns).</p>
 <p>What you need to know about the <code>big.matrix</code> format:</p>
 <ul>
-<li>you can easily and quickly access matrices-like objects stored on disk,</li>
+<li>you can easily and quickly access matrice-like objects stored on disk,</li>
 <li>you can use different types of storage (I use type <code>char</code> to store each element on only 1 byte),</li>
-<li>it is column-major ordered as standard <code>R</code> matrix,</li>
+<li>it is column-major ordered as standard <code>R</code> matrices,</li>
 <li>you can access elements of a <code>big.matrix</code> using <code>X[i, j]</code> in <code>R</code>,</li>
 <li>you can access elements of a <code>big.matrix</code> using <code>X[j][i]</code> in <code>Rcpp</code>,</li>
 <li>you can get a <code>RcppEigen</code> or <code>RcppArmadillo</code> view of a <code>big.matrix</code> (see Appendix).</li>

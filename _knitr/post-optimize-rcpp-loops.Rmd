@@ -18,9 +18,9 @@ For this post, I will use a `big.matrix` which represents genotypes for 15,283 i
 
 What you need to know about the `big.matrix` format:
 
-- you can easily and quickly access matrices-like objects stored on disk,
+- you can easily and quickly access matrice-like objects stored on disk,
 - you can use different types of storage (I use type `char` to store each element on only 1 byte),
-- it is column-major ordered as standard `R` matrix,
+- it is column-major ordered as standard `R` matrices,
 - you can access elements of a `big.matrix` using `X[i, j]` in `R`,
 - you can access elements of a `big.matrix` using `X[j][i]` in `Rcpp`,
 - you can get a `RcppEigen` or `RcppArmadillo` view of a `big.matrix` (see Appendix).
