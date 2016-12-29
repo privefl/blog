@@ -1,0 +1,195 @@
+---
+title: "Tip: Optimize your Rcpp loops"
+author: "Florian Privé"
+date: "December 29, 2016" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+In this post, I will show you how to optimize your `Rcpp` loops so that they are 2 to 3 times faster than a standard implementation.
+
+## Context
+
+### Real data example
+
+For this post, I will use an `big.matrix` which represents genotypes for 15,283 individuals, corresponding to the number of mutations (0, 1 or 2) at 287,155 different loci. Here, I will use only the first 10,000 columns.
+
+What you need to know about the `big.matrix` format:
+
+- you can easily and quickly access matrices-like objects stored on disk,
+- you can use different types of storage (I use type `char` to store each element on only 1 byte),
+- it is column-major ordered as standard `R` matrix,
+- you can access elements of a `big.matrix` using `X[i, j]` in `R`,
+- you can access elements of a `big.matrix` using `X[j][i]` in `Rcpp`,
+- you can get a `RcppEigen` or `RcppArmadillo` view of a `big.matrix` (see Appendix).
+- for more details, go to [the GitHub repo](https://github.com/kaneplusplus/bigmemory).
+
+Peek at the data:
+```{r, include=FALSE}
+options(width = 80)
+
+require(bigsnpr)
+celiac <- AttachBigSNP("../../bigsnpr/backingfiles/celiac_impute1_sub1.bk")
+X <- sub.big.matrix(celiac$genotypes, lastCol = 1e4)
+```
+
+```{r}
+print(dim(X))
+print(X[1:10, 1:12])
+```
+
+### What I needed
+
+I needed a fast matrix-vector multiplication between a `big.matrix` and a vector. Moreover, I could not use any `RcppEigen` or `RcppArmadillo` multiplication because I needed some options of efficiently subsetting columns or rows in my matrix (see Appendix). 
+
+Writing this multiplication in `Rcpp` is no more than two loops:
+```{Rcpp}
+// [[Rcpp::depends(RcppEigen, bigmemory, BH)]]
+#include <RcppEigen.h>
+#include <bigmemory/MatrixAccessor.hpp>
+
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector prod1(XPtr<BigMatrix> bMPtr, const NumericVector& x) {
+  
+  MatrixAccessor<char> macc(*bMPtr);
+
+  int n = bMPtr->nrow();
+  int m = bMPtr->ncol();
+
+  NumericVector res(n);
+  int i, j;
+  
+  for (j = 0; j < m; j++) {
+    for (i = 0; i < n; i++) {
+      res[i] += macc[j][i] * x[j];
+    }
+  }
+
+  return res;
+}
+```
+
+One test:
+```{r}
+y <- rnorm(ncol(X))
+
+print(system.time(
+  test <- prod1(X@address, y)
+))
+```
+
+__What comes next should be transposable to other applications and other types of data.__
+
+## Unrolling optimization
+
+While searching for optimizing my multiplication, I came across [this Stack Overflow answer](http://stackoverflow.com/a/12289513/6103040).
+
+Unrolling in action:
+```{Rcpp}
+// [[Rcpp::depends(RcppEigen, bigmemory, BH)]]
+#include <RcppEigen.h>
+#include <bigmemory/MatrixAccessor.hpp>
+
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector prod4(XPtr<BigMatrix> bMPtr, const NumericVector& x) {
+  
+  MatrixAccessor<char> macc(*bMPtr);
+  
+  int n = bMPtr->nrow();
+  int m = bMPtr->ncol();
+  
+  NumericVector res(n);
+  int i, j;
+  
+  for (j = 0; j <= m - 4; j += 4) {
+    for (i = 0; i < n; i++) { // unrolling optimization
+      res[i] += (x[j] * macc[j][i] + x[j+1] * macc[j+1][i]) +
+        (x[j+2] * macc[j+2][i] + x[j+3] * macc[j+3][i]);
+    } // The parentheses are somehow important. Try without.
+  }
+  for (; j < m; j++) {
+    for (i = 0; i < n; i++) {
+      res[i] += x[j] * macc[j][i];
+    }
+  }
+  
+  return res;
+}
+```
+```{r}
+require(microbenchmark)
+
+print(microbenchmark(
+  PROD1 = test1 <- prod1(X@address, y),
+  PROD4 = test2 <- prod4(X@address, y),
+  times = 5
+))
+
+print(all.equal(test1, test2))
+```
+
+Nice! 
+Let's try more. Why not using 8 or 16 rather than 4?
+
+```{r, fig.align='center'}
+Rcpp::sourceCpp('../code/prods.cpp')
+
+print(bench <- microbenchmark(
+  PROD1 = prod1(X@address, y),
+  PROD2 = prod2(X@address, y),
+  PROD4 = prod4(X@address, y),
+  PROD8 = prod8(X@address, y),
+  PROD16 = prod16(X@address, y),
+  times = 5
+))
+
+time <- summary(bench)[, "median"]
+step <- 2^(0:4)
+plot(step, time, type = "b", xaxt = "n", yaxt = "n", 
+     xlab = "size of each step")
+axis(side = 1, at = step)
+axis(side = 2, at = round(time))
+```
+
+
+## Conclusion
+
+We have seen that unrolling can dramatically improve performances on loops.
+Steps of size 8 or 16 are of relatively little extra gain compared to 2 or 4. 
+
+As pointed out in the SO answer, it can behave rather differently between systems. So, if it is for your personal use, use the maximum gain (try 32!), but as I want my function to be used by others in a package, I think it's safer to choose a step of 4.
+
+## Appendix
+
+You can do a `big.matrix`-vector multiplication easily with `RcppEigen` or `RcppArmadillo` (see [this code](../prods2.cpp)) but it lacks of efficient subsetting option.
+
+Indeed, you still can't use subsetting in `Eigen`, but this will come as
+said in [this feature request](http://eigen.tuxfamily.org/bz/show_bug.cgi?id=329). For `Armadillo`, you can but it is rather slow:
+
+```{r}
+Rcpp::sourceCpp('../code/prods2.cpp')
+
+n <- nrow(X)
+ind <- sort(sample(n, size = n/2))
+
+print(microbenchmark(
+  EIGEN = test3 <- prodEigen(X@address, y),
+  ARMA = test4 <- prodArma(X@address, y),
+  ARMA_SUB = test5 <- prodArmaSub(X@address, y, ind - 1),
+  times = 5
+))
+
+print(all(
+  all.equal(test3, test), 
+  all.equal(as.numeric(test4), test),
+  all.equal(as.numeric(test5), test[ind])
+))
+```
+
+
