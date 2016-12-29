@@ -161,7 +161,7 @@ step &lt;-<span class="st"> </span><span class="dv">2</span>^(<span class="dv">0
 </div>
 <div id="appendix" class="section level2">
 <h2>Appendix</h2>
-<p>You can do a <code>big.matrix</code>-vector multiplication easily with <code>RcppEigen</code> or <code>RcppArmadillo</code> (see <a href="{{ site.url }}{{ site.baseurl }}/prods2.cpp">this code</a>) but it lacks of efficient subsetting option.</p>
+<p>You can do a <code>big.matrix</code>-vector multiplication easily with <code>RcppEigen</code> or <code>RcppArmadillo</code> (see <a href="{{ site.url }}{{ site.baseurl }}/code/prods2.cpp">this code</a>) but it lacks of efficient subsetting option.</p>
 <p>Indeed, you still can’t use subsetting in <code>Eigen</code>, but this will come as said in <a href="http://eigen.tuxfamily.org/bz/show_bug.cgi?id=329">this feature request</a>. For <code>Armadillo</code>, you can but it is rather slow:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Rcpp::<span class="kw">sourceCpp</span>(<span class="st">&#39;{{ site.url }}{{ site.baseurl }}/code/prods2.cpp&#39;</span>)
 
