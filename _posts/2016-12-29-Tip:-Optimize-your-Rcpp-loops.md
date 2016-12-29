@@ -13,7 +13,7 @@ layout: post
 <h2>Context</h2>
 <div id="real-data-example" class="section level3">
 <h3>Real data example</h3>
-<p>For this post, I will use an <code>big.matrix</code> which represents genotypes for 15,283 individuals, corresponding to the number of mutations (0, 1 or 2) at 287,155 different loci. Here, I will use only the first 10,000 columns.</p>
+<p>For this post, I will use a <code>big.matrix</code> which represents genotypes for 15,283 individuals, corresponding to the number of mutations (0, 1 or 2) at 287,155 different loci. Here, I will use only the first 10,000 columns.</p>
 <p>What you need to know about the <code>big.matrix</code> format:</p>
 <ul>
 <li>you can easily and quickly access matrices-like objects stored on disk,</li>
