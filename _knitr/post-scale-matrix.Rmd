@@ -1,0 +1,159 @@
+---
+title: "(Linear Algebra) Do not scale your matrix"
+subtitle: "Application to Principal Component Analysis"
+author: "Florian Privé"
+date: "June 3, 2017" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+In this post, I will show you that you generally don't need to explicitly scale a matrix. Maybe you wanted to know more about WHY matrices should be scaled when doing linear algebra. I will make a remainder about that in the beginning but the rest will focus on HOW to not explicitly scale matrices. We will apply our findings to the computation of Principal Component Analysis (PCA).
+
+## WHY scaling matrices?
+
+Generally, if you don't center columns of a matrix before PCA, you end up with the loadings of PC1 being the column means, which is not of must interest.
+
+```{r}
+n <- 100; m <- 10
+a <- matrix(0, n, m); a[] <- rnorm(length(a))
+a <- sweep(a, 2, 1:m, '+')
+colMeans(a)
+pca <- prcomp(a, center = FALSE)
+cor(pca$rotation[, 1], colMeans(a))
+```
+
+Now, say you have centered your column, do you also need to scale them? That is to say, do they need to have the same norm or standard deviation?
+
+PCA consists in finding an orthogonal basis that maximizes the variation in the data you analyze. So, if there is a column with much more variation that the others, it will probably end up being PC1, which is not of must interest.
+
+```{r}
+n <- 100; m <- 10
+a <- matrix(0, n, m); a[] <- rnorm(length(a))
+a[, 1] <- 100 * a[, 1]
+apply(a, 2, sd)
+pca <- prcomp(a, center = TRUE)
+pca$rotation[, 1]
+```
+
+Hope I convinced you on WHY it is important to scale matrix columns before doing PCA. I will now show HOW not to do it explictly.
+
+## Reimplementation of PCA
+
+In this part, I will show you the basic code if you want to reimplement PCA yourself. It will serve at a basis to show you how to do it, without explicitly scaling the matrix you have.
+
+```{r}
+# True one
+n <- 100; m <- 10
+a <- matrix(0, n, m); a[] <- rnorm(length(a))
+pca <- prcomp(a, center = TRUE, scale. = TRUE)
+# DIY
+a.scaled <- scale(a, center = TRUE, scale = TRUE)
+K <- crossprod(a.scaled)
+K.eigs <- eigen(K, symmetric = TRUE)
+v <- K.eigs$vectors
+PCs <- a.scaled %*% v
+# Verif, recall that PCs can be opposites between runs
+plot(v, pca$rotation)
+all.equal(sqrt(K.eigs$values), sqrt(n - 1) * pca$sdev)
+plot(PCs, pca$x)
+```
+
+## Linear algebra behind the previous implementation
+
+Suppose $m > n$ ($m$ is the number of columns and $n$ is the number of rows). Let us denote $\tilde{X}$ the scaled matrix. A partial singular value decomposition of $\tilde{X}$ is $\tilde{X} \approx U \Delta V^T$ where $U$ is an $n \times K$ matrix such that $U^T U = I_K$, $\Delta$ is a $K \times K$ diagonal matrix and $V$ is an $M \times K$ matrix such that $V^T V = I_K$. Taking $K = n$, you end up with $\tilde{X} = U \Delta V^T$. 
+
+$U \Delta$ are the scores (PCs) of the PCA and $V$ are the loadings (rotation coefficients). $K = \tilde{X}^T \tilde{X} = (U \Delta V^T)^T \cdot U \Delta V^T = V \Delta U^T U \Delta V^T = V \Delta^2 V^T$. So, when doing the eigen decomposition of K, you get $V$ and $\Delta^2$ because $K V = V \Delta^2$. For getting the scores, you then compute $\tilde{X} V = U \Delta$.
+
+These are exactly the steps implemented above.
+
+## Implicit scaling of the matrix
+
+Do you know the matrix formulation of column scaling?
+$\tilde{X} = C_n X S$ where $C_n = I_n - \frac{1}{n} 1_n 1_n^T$ is the [centering matrix](https://en.wikipedia.org/wiki/Centering_matrix) and $S$ is an $m \times m$ diagonal matrix with the scaling coefficients (typically, $S_{j,j} = 1 / \text{sd}_j$). 
+
+```{r}
+# Let's verify
+sds <- apply(a, 2, sd)
+a.scaled2 <- (diag(n) - tcrossprod(rep(1, n)) / n) %*% a %*% diag(1 / sds)
+all.equal(a.scaled2, a.scaled, check.attributes = FALSE)
+```
+
+In our previous implementation, we computed $\tilde{X}^T \tilde{X}$ and $\tilde{X} V$. We are going to compute them again, without explicitly scaling the matrix.
+
+### Product 
+
+Let us begin by something easy:
+$\tilde{X} V = C_n X S V = C_n (X (S V))$. So, you can compute $\tilde{X} V$ without explicitly scaling $X$. Let us verify:
+```{r}
+SV <- v / sds
+XSV <- a %*% SV
+CXSV <- sweep(XSV, 2, colMeans(XSV), '-')
+all.equal(CXSV, PCs)
+```
+
+### Self cross-product
+
+A little more tricky:
+$\tilde{X}^T \tilde{X} = (C_n X S)^T \cdot C_n X S = S^T X^T C_n X S$ ($C_n^2 = C_n$ is intuitive because centering an already centered matrix doesn't change it). 
+
+$\tilde{X}^T \tilde{X} = S^T X^T (I_n - \frac{1}{n} 1_n 1_n^T) X S = S^T X^T X S - S^T X^T (\frac{1}{n} 1_n 1_n^T) X S = S^T (X^T X - \frac{1}{n} sx * sx^T) S$ where $sx$ is the vector of column sums of X.
+
+Let us verify with a rough implementation:
+```{r}
+sx <- colSums(a)
+K2 <- (crossprod(a) - tcrossprod(sx) / n) / tcrossprod(sds)
+all.equal(K, K2)
+```
+
+## Conclusion
+
+We have recalled some steps about the computation of Principal Component Analysis on a scaled matrix. We have seen how to compute the different steps of the implementation without having to explicit scale the matrix. This "implicit" scaling can be quite useful if you manipulate very large matrices because you are not copying the matrix nor passing one time on it. In my next post, I will present to you my new package that uses this trick to make a lightning partial SVD on very large matrices.
+
+## Appendix: application to Pearson correlation
+
+Pearson correlation is merely a self cross-product on a centered and normalized (unit norm) matrix. Let us just implement that with our new trick.
+
+```{Rcpp}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericMatrix& correlize(NumericMatrix& mat,
+                         const NumericVector& shift,
+                         const NumericVector& scale) {
+  
+  int n = mat.nrow();
+  int i, j;
+  
+  for (j = 0; j < n; j++) {
+    for (i = 0; i < n; i++) {
+      mat(i, j) -= shift(i) * shift(j);
+      mat(i, j) /= scale(i) * scale(j);
+    }
+  }
+  
+  return mat;
+}
+```
+
+```{r}
+cor3 <- function(mat) {
+  sums <- colSums(mat) / sqrt(nrow(mat))
+  corr <- crossprod(mat)
+  diags <- sqrt(diag(corr) - sums^2)
+  correlize(corr, shift = sums, scale = diags)
+}
+
+a <- matrix(0, 1000, 1000); a[] <- rnorm(length(a))
+all.equal(cor3(a), cor(a))
+
+library(microbenchmark)
+print(microbenchmark(
+  cor3(a),
+  cor(a),
+  times = 5
+)) 
+```
+
