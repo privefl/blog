@@ -62,7 +62,7 @@ plot(PCs, pca$x)
 
 ## Linear algebra behind the previous implementation
 
-Suppose $m < n$ ($m$ is the number of columns and $n$ is the number of rows). Let us denote $\tilde{X}$ the scaled matrix. A partial singular value decomposition of $\tilde{X}$ is $\tilde{X} \approx U \Delta V^T$ where $U$ is an $n \times K$ matrix such that $U^T U = I_K$, $\Delta$ is a $K \times K$ diagonal matrix and $V$ is an $M \times K$ matrix such that $V^T V = I_K$. Taking $K = m$, you end up with $\tilde{X} = U \Delta V^T$. 
+Suppose $m < n$ ($m$ is the number of columns and $n$ is the number of rows). Let us denote $\tilde{X}$ the scaled matrix. A partial singular value decomposition of $\tilde{X}$ is $\tilde{X} \approx U \Delta V^T$ where $U$ is an $n \times K$ matrix such that $U^T U = I_K$, $\Delta$ is a $K \times K$ diagonal matrix and $V$ is an $m \times K$ matrix such that $V^T V = I_K$. Taking $K = m$, you end up with $\tilde{X} = U \Delta V^T$. 
 
 $U \Delta$ are the scores (PCs) of the PCA and $V$ are the loadings (rotation coefficients). $K = \tilde{X}^T \tilde{X} = (U \Delta V^T)^T \cdot U \Delta V^T = V \Delta U^T U \Delta V^T = V \Delta^2 V^T$. So, when doing the eigen decomposition of K, you get $V$ and $\Delta^2$ because $K V = V \Delta^2$. For getting the scores, you then compute $\tilde{X} V = U \Delta$.
 

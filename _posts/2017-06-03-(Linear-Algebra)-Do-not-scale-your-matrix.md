@@ -16,23 +16,23 @@ layout: post
 a &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">0</span>, n, m); a[] &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="kw">length</span>(a))
 a &lt;-<span class="st"> </span><span class="kw">sweep</span>(a, <span class="dv">2</span>, <span class="dv">1</span>:m, <span class="st">&#39;+&#39;</span>)
 <span class="kw">colMeans</span>(a)</code></pre></div>
-<pre><code>##  [1] 0.9512423 1.9907745 3.0800929 4.1720973 4.9767280 5.9340206 6.9894785
-##  [8] 8.1471005 8.9571455 9.8529347</code></pre>
+<pre><code>##  [1]  0.9969826  1.9922219  3.0894905  3.9680835  4.9433477  6.0007352
+##  [7]  6.9524794  8.0898546  8.9506657 10.0354630</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pca &lt;-<span class="st"> </span><span class="kw">prcomp</span>(a, <span class="dt">center =</span> <span class="ot">FALSE</span>)
 <span class="kw">cor</span>(pca$rotation[, <span class="dv">1</span>], <span class="kw">colMeans</span>(a))</code></pre></div>
-<pre><code>## [1] -0.9999985</code></pre>
+<pre><code>## [1] 0.9999991</code></pre>
 <p>Now, say you have centered column or your matrix, do you also need to scale them? That is to say, do they need to have the same norm or standard deviation?</p>
 <p>PCA consists in finding an orthogonal basis that maximizes the variation in the data you analyze. So, if there is a column with much more variation than the others, it will probably end up being PC1, which is not of must interest.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n &lt;-<span class="st"> </span><span class="dv">100</span>; m &lt;-<span class="st"> </span><span class="dv">10</span>
 a &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">0</span>, n, m); a[] &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="kw">length</span>(a))
 a[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">100</span> *<span class="st"> </span>a[, <span class="dv">1</span>]
 <span class="kw">apply</span>(a, <span class="dv">2</span>, sd)</code></pre></div>
-<pre><code>##  [1] 85.8860032  1.0899499  0.9895347  0.9834930  0.9027251  1.0394262
-##  [7]  0.9861846  1.1298409  1.0123481  0.9914498</code></pre>
+<pre><code>##  [1] 90.8562836  0.8949268  0.9514208  1.0437561  0.9995103  1.0475651
+##  [7]  0.9531466  0.9651383  0.9804789  0.9605121</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pca &lt;-<span class="st"> </span><span class="kw">prcomp</span>(a, <span class="dt">center =</span> <span class="ot">TRUE</span>)
 pca$rotation[, <span class="dv">1</span>]</code></pre></div>
-<pre><code>##  [1] -0.9999953603  0.0002120899  0.0012648218  0.0017810368  0.0003721929
-##  [6] -0.0001420688 -0.0007200936  0.0019180982  0.0001602967 -0.0002837034</code></pre>
+<pre><code>##  [1]  9.999939e-01  6.982439e-04 -5.037773e-04 -9.553513e-05  8.937869e-04
+##  [6] -1.893732e-03 -3.053232e-04  1.811950e-03 -1.658014e-03  9.937442e-04</code></pre>
 <p>Hope I convinced you on WHY it is important to scale matrix columns before doing PCA. I will now show you <strong>HOW not to do it explictly</strong>.</p>
 </div>
 <div id="reimplementation-of-pca" class="section level2">
@@ -58,7 +58,7 @@ PCs &lt;-<span class="st"> </span>a.scaled %*%<span class="st"> </span>v
 </div>
 <div id="linear-algebra-behind-the-previous-implementation" class="section level2">
 <h2>Linear algebra behind the previous implementation</h2>
-<p>Suppose <span class="math inline">\(m &lt; n\)</span> (<span class="math inline">\(m\)</span> is the number of columns and <span class="math inline">\(n\)</span> is the number of rows). Let us denote <span class="math inline">\(\tilde{X}\)</span> the scaled matrix. A partial singular value decomposition of <span class="math inline">\(\tilde{X}\)</span> is <span class="math inline">\(\tilde{X} \approx U \Delta V^T\)</span> where <span class="math inline">\(U\)</span> is an <span class="math inline">\(n \times K\)</span> matrix such that <span class="math inline">\(U^T U = I_K\)</span>, <span class="math inline">\(\Delta\)</span> is a <span class="math inline">\(K \times K\)</span> diagonal matrix and <span class="math inline">\(V\)</span> is an <span class="math inline">\(M \times K\)</span> matrix such that <span class="math inline">\(V^T V = I_K\)</span>. Taking <span class="math inline">\(K = m\)</span>, you end up with <span class="math inline">\(\tilde{X} = U \Delta V^T\)</span>.</p>
+<p>Suppose <span class="math inline">\(m &lt; n\)</span> (<span class="math inline">\(m\)</span> is the number of columns and <span class="math inline">\(n\)</span> is the number of rows). Let us denote <span class="math inline">\(\tilde{X}\)</span> the scaled matrix. A partial singular value decomposition of <span class="math inline">\(\tilde{X}\)</span> is <span class="math inline">\(\tilde{X} \approx U \Delta V^T\)</span> where <span class="math inline">\(U\)</span> is an <span class="math inline">\(n \times K\)</span> matrix such that <span class="math inline">\(U^T U = I_K\)</span>, <span class="math inline">\(\Delta\)</span> is a <span class="math inline">\(K \times K\)</span> diagonal matrix and <span class="math inline">\(V\)</span> is an <span class="math inline">\(m \times K\)</span> matrix such that <span class="math inline">\(V^T V = I_K\)</span>. Taking <span class="math inline">\(K = m\)</span>, you end up with <span class="math inline">\(\tilde{X} = U \Delta V^T\)</span>.</p>
 <p><span class="math inline">\(U \Delta\)</span> are the scores (PCs) of the PCA and <span class="math inline">\(V\)</span> are the loadings (rotation coefficients). <span class="math inline">\(K = \tilde{X}^T \tilde{X} = (U \Delta V^T)^T \cdot U \Delta V^T = V \Delta U^T U \Delta V^T = V \Delta^2 V^T\)</span>. So, when doing the eigen decomposition of K, you get <span class="math inline">\(V\)</span> and <span class="math inline">\(\Delta^2\)</span> because <span class="math inline">\(K V = V \Delta^2\)</span>. For getting the scores, you then compute <span class="math inline">\(\tilde{X} V = U \Delta\)</span>.</p>
 <p>These are exactly the steps implemented above.</p>
 </div>
@@ -137,8 +137,8 @@ a &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">
   <span class="dt">times =</span> <span class="dv">20</span>
 )</code></pre></div>
 <pre><code>## Unit: milliseconds
-##     expr       min        lq      mean   median        uq       max neval
-##  cor3(a)  38.77552  39.23417  39.62269  39.6394  39.74042  42.08158    20
-##   cor(a) 632.61475 634.51418 639.04049 636.4544 639.47465 678.96845    20</code></pre>
+##     expr       min        lq      mean    median        uq       max neval
+##  cor3(a)  39.38138  39.67276  40.68596  40.09893  40.65623  46.46785    20
+##   cor(a) 635.74350 637.33605 639.34810 638.09980 639.36110 651.61876    20</code></pre>
 </div>
 </section>
