@@ -1,0 +1,62 @@
+---
+title: "Package bigstatsr: work with matrices on disk (useR!2017)"
+author: "Florian Privé"
+date: "July 10, 2017" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.align = "center")
+```
+
+In this post, I will talk about my package **bigstatsr**, which I've just presented in a lightning talk of 5 minutes at useR!2017. It will also be a good opportunity to talk about good practice for **optimized and parallelized coding**. 
+
+You can see me in action [there](https://user2017.brussels/) and find the slides [there](https://privefl.github.io/useR-2017/slides.html). 
+I should have chosen a longer talk (maybe next time) to explain more about this package. I will use this post to give you a more detailed version of the talk I gave last week in Brussels. 
+
+## Motivation behind **bigstatsr**
+
+I'm a PhD student in predictive human genetics. I'm basically trying to predict someone's risk of disease based on their DNA mutations. These DNA mutations are in the form of large matrices so that I'm currently working with a matrix of 15K rows and 300K columns. This matrix would take approximately 32GB of RAM if stored as a standard R matrix.
+
+When I began studying this dataset, I had only 8GB of RAM on my computer. I now have 64GB of RAM but it would take only copying this matrix once to make my computer begin swapping and therefore slowing down. I found a solution that I found convenient, using object `big.matrix` of R package **bigmemory** (REF).
+
+```{r, echo=FALSE}
+knitr::include_graphics("https://raw.githubusercontent.com/privefl/useR-2017/master/memory-solution.svg")
+```
+
+Yet, some statistical functions useful for most analyses were missing or not fast enough, for this kind of data. So, I implemented these. It was a good experience about programming optimized and parallelized algorithms.
+
+## Introduction to **bigmemory**
+
+```{r}
+# loading package bigstatsr (and bigmemory)
+library(bigstatsr)
+# initializing some matrix on disk: wrapper to bigmemory::big.matrix()
+mat <- FBM(backingroot = "matrix-on-disk", descriptor = FALSE)(5e3, 10e3)
+dim(mat)
+mat[1:5, 1:5]
+mat[1, 1] <- 2
+mat[1:5, 1:5]
+mat[2:4] <- 3
+mat[1:5, 1:5]
+mat[, 2:3] <- rnorm(2 * nrow(mat))
+mat[1:5, 1:5]
+```
+
+What we can see is that big matrices (`big.matrix` objects) can be accessed (read/write) almost as if there were standard R matrices. But you have to be cautious, for example doing `mat[1, ]` is bad. Indeed, big matrices, as standard R matrices are stored by column so that it is in fact a big vector with columns stored one after the other, contiguously. So, accessing the first row would access elements that are not stored contiguously in memory, which is slow. One should always access columns rather than rows.
+
+## Apply an R function to a big matrix
+
+An easy strategy to apply an R function to a big.matrix would be the split-apply-combine strategy. For example, you could access only a block of columns at a time, apply a function to them, and then combine the results. This is implemented in function big_apply.
+
+```{r, echo=FALSE}
+knitr::include_graphics("https://raw.githubusercontent.com/privefl/useR-2017/master/memory-solution.svg")
+```
+
+```{r cleaning, include=FALSE}
+unlink("backingfiles/", recursive = TRUE)
+```
+
