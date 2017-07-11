@@ -6,10 +6,12 @@ output:                    # DO NOT CHANGE
   prettydoc::html_pretty:  # DO NOT CHANGE
     theme: cayman          # DO NOT CHANGE
     highlight: github      # DO NOT CHANGE
+bibliography: bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.align = "center")
+unlink("backingfiles/", recursive = TRUE) # cleaning
 ```
 
 In this post, I will talk about my package **bigstatsr**, which I've just presented in a lightning talk of 5 minutes at useR!2017. It will also be a good opportunity to talk about good practice for **optimized and parallelized coding**. 
@@ -21,7 +23,7 @@ I should have chosen a longer talk (maybe next time) to explain more about this 
 
 I'm a PhD student in predictive human genetics. I'm basically trying to predict someone's risk of disease based on their DNA mutations. These DNA mutations are in the form of large matrices so that I'm currently working with a matrix of 15K rows and 300K columns. This matrix would take approximately 32GB of RAM if stored as a standard R matrix.
 
-When I began studying this dataset, I had only 8GB of RAM on my computer. I now have 64GB of RAM but it would take only copying this matrix once to make my computer begin swapping and therefore slowing down. I found a solution that I found convenient, using object `big.matrix` of R package **bigmemory** (REF).
+When I began studying this dataset, I had only 8GB of RAM on my computer. I now have 64GB of RAM but it would take only copying this matrix once to make my computer begin swapping and therefore slowing down. I found a convenient solution by using object `big.matrix` of R package **bigmemory**. With this solution, you can access a matrix that is stored on disk almost as if were a standard R matrix in memory.
 
 ```{r, echo=FALSE}
 knitr::include_graphics("https://raw.githubusercontent.com/privefl/useR-2017/master/memory-solution.svg")
@@ -30,6 +32,8 @@ knitr::include_graphics("https://raw.githubusercontent.com/privefl/useR-2017/mas
 Yet, some statistical functions useful for most analyses were missing or not fast enough, for this kind of data. So, I implemented these. It was a good experience about programming optimized and parallelized algorithms.
 
 ## Introduction to **bigmemory**
+
+#TODO: parler des packages qui accompagnent bigmemory
 
 ```{r}
 # loading package bigstatsr (and bigmemory)
@@ -46,17 +50,118 @@ mat[, 2:3] <- rnorm(2 * nrow(mat))
 mat[1:5, 1:5]
 ```
 
-What we can see is that big matrices (`big.matrix` objects) can be accessed (read/write) almost as if there were standard R matrices. But you have to be cautious, for example doing `mat[1, ]` is bad. Indeed, big matrices, as standard R matrices are stored by column so that it is in fact a big vector with columns stored one after the other, contiguously. So, accessing the first row would access elements that are not stored contiguously in memory, which is slow. One should always access columns rather than rows.
+What we can see is that big matrices (`big.matrix` objects) can be accessed (read/write) almost as if they were standard R matrices. But you have to be cautious, for example doing `mat[1, ]` isn't recommended. Indeed, big matrices, as standard R matrices, are stored by column so that it is in fact a big vector with columns stored one after the other, contiguously. So, accessing the first row would access elements that are not stored contiguously in memory, which is slow. One should always access columns rather than rows.
 
 ## Apply an R function to a big matrix
 
-An easy strategy to apply an R function to a big.matrix would be the split-apply-combine strategy. For example, you could access only a block of columns at a time, apply a function to them, and then combine the results. This is implemented in function big_apply.
+An easy strategy to apply an R function to a big matrix would be the split-apply-combine strategy (). For example, you could access only a block of columns at a time, apply a function to this block, and then combine the results of all blocks. This is implemented in function big_apply.
 
 ```{r, echo=FALSE}
-knitr::include_graphics("https://raw.githubusercontent.com/privefl/useR-2017/master/memory-solution.svg")
+knitr::include_graphics("https://raw.githubusercontent.com/privefl/useR-2017/master/split-apply-combine.svg")
 ```
 
-```{r cleaning, include=FALSE}
-unlink("backingfiles/", recursive = TRUE)
+```{r}
+# Compute the sums of the first 1000 columns
+colsums_1 <- colSums(mat[, 1:1000])
+# Compute the sums of the second block of 1000 columns
+colsums_2 <- colSums(mat[, 1001:2000])
+# Combine the results
+colsums_1_2 <- c(colsums_1, colsums_2)
+# Do this automatically with big_apply()
+colsums_all <- big_apply(mat, a.FUN = function(X, ind) colSums(X[, ind]), 
+                         a.combine = 'c')
+```
+
+When the split-apply-combine strategy can be used for a given function, you could use `big_apply()` to get the results, while accessing only small blocks of columns at a time. 
+Package **biganalytics**, by the creators of **bigmemory** provide a way to apply an R function to margins of a `big.matrix`. Yet, for example, if the `big.matrix` has a lot of columns, it would be much slower to loop through all columns rather that applying a vectorized function to blocks of columns. Find more example [there](https://privefl.github.io/bigstatsr/reference/big_apply.html).
+
+```{r}
+colsums_all2 <- biganalytics::apply(mat, 2, sum)
+all.equal(colsums_all2, colsums_all)
+```
+
+## Use Rcpp with a big matrix
+
+Using Rcpp with a `big.matrix` is super easy. Let's use the previous example, i.e. the computation of the colsums of a `big.matrix`. We will do it 3 different ways.
+
+### (1) Using the syntax of bigmemory
+
+```{Rcpp}
+// [[Rcpp::depends(bigmemory, BH)]]
+#include <bigmemory/MatrixAccessor.hpp>
+#include <Rcpp.h>
+
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector bigcolsums(const S4& BM) {
+  
+  XPtr<BigMatrix> xpMat = BM.slot("address");
+  MatrixAccessor<double> macc(*xpMat);
+  
+  int n = macc.nrow();
+  int m = macc.ncol();
+
+  NumericVector res(m); // vector of m zeros
+  int i, j;
+
+  for (j = 0; j < m; j++) 
+    for (i = 0; i < n; i++) 
+      res[j] += macc[j][i];
+
+  return res;
+}
+```
+
+```{r}
+colsums_all3 <- bigcolsums(mat)
+all.equal(colsums_all3, colsums_all)
+```
+
+### 
+
+```{Rcpp}
+//TODO: change the include way in bigstatsr
+// [[Rcpp::depends(bigstatsr, RcppArmadillo, bigmemory, BH)]]
+#include <bigstatsr.h>
+
+// [[Rcpp::export]]
+NumericVector bigcolsums2(const S4& BM,
+                          const IntegerVector& rowInd,
+                          const IntegerVector& colInd) {
+  
+  XPtr<BigMatrix> xpMat = BM.slot("address");
+  // C++ indices begin at 0
+  IntegerVector rows = rowInd - 1;
+  IntegerVector cols = colInd - 1;
+  // An accessor of only part of the big.matrix
+  SubMatAcc<double> macc(*xpMat, rows, cols);
+  
+  int n = macc.nrow();
+  int m = macc.ncol();
+
+  NumericVector res(m); // vector of m zeros
+  int i, j;
+
+  for (j = 0; j < m; j++) 
+    for (i = 0; i < n; i++) 
+      res[j] += macc(i, j);
+
+  return res;
+}
+```
+
+```{r}
+colsums_all4 <- bigcolsums2(mat, rows_along(mat), cols_along(mat))
+all.equal(colsums_all4, colsums_all)
+```
+
+In **bigstatsr**, most of the functions have parameters for subsetting rows and columns because it is often useful. One of the main reasons why I don't use package **bigalgebra** is its lack of subsetting options. 
+
+### (3) Use an already implemented function
+
+```{r}
+str(colsums_all5 <- big_colstats(mat))
+all.equal(colsums_all5$sum, colsums_all)
 ```
 
