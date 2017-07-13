@@ -54,3 +54,33 @@ url = {http://www.jstatsoft.org/v40/i01/},
 volume = {40},
 year = {2011}
 }
+
+@article{Tibshirani2012,
+abstract = {We consider rules for discarding predictors in lasso regression and related problems, for computational efficiency. El Ghaoui and his colleagues have propose 'SAFE' rules, based on univariate inner products between each predictor and the outcome, which guarantee that a coefficient will be 0 in the solution vector. This provides a reduction in the number of variables that need to be entered into the optimization. We propose strong rules that are very simple and yet screen out far more predictors than the SAFE rules. This great practical improvement comes at a price: the strong rules are not foolproof and can mistakenly discard active predictors, i.e. predictors that have non-zero coefficients in the solution. We therefore combine them with simple checks of the Karush-Kuhn-Tucker conditions to ensure that the exact solution to the convex problem is delivered. Of course, any (approximate) screening method can be combined with the Karush-Kuhn-Tucker, conditions to ensure the exact solution; the strength of the strong rules lies in the fact that, in practice, they discard a very large number of the inactive predictors and almost never commit mistakes. We also derive conditions under which they are foolproof. Strong rules provide substantial savings in computational time for a variety of statistical optimization problems.},
+author = {Tibshirani, Robert and Bien, Jacob and Friedman, Jerome and Hastie, Trevor and Simon, Noah and Taylor, Jonathan and Tibshirani, Ryan J},
+doi = {10.1111/j.1467-9868.2011.01004.x},
+file = {:home/privef/Bureau/thesis-celiac/articles/Tibshirani et al. - 2012 - Strong rules for discarding predictors in lasso-type problems.pdf:pdf},
+issn = {1369-7412},
+journal = {Journal of the Royal Statistical Society. Series B, Statistical methodology},
+month = {mar},
+number = {2},
+pages = {245--266},
+pmid = {25506256},
+title = {{Strong rules for discarding predictors in lasso-type problems.}},
+url = {http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=4262615{\&}tool=pmcentrez{\&}rendertype=abstract},
+volume = {74},
+year = {2012}
+}
+
+@article{Zeng2017,
+abstract = {Penalized regression models such as the lasso have been extensively applied to analyzing high-dimensional data sets. However, due to memory limitations, existing R packages like glmnet and ncvreg are not capable of fitting lasso-type models for ultrahigh-dimensional, multi-gigabyte data sets that are increasingly seen in many areas such as genetics, genomics, biomedical imaging, and high-frequency finance. In this research, we implement an R package called biglasso that tackles this challenge. biglasso utilizes memory-mapped files to store the massive data on the disk, only reading data into memory when necessary during model fitting, and is thus able to handle out-of-core computation seamlessly. Moreover, it's equipped with newly proposed, more efficient feature screening rules, which substantially accelerate the computation. Benchmarking experiments show that our biglasso package, as compared to existing popular ones like glmnet, is much more memory- and computation-efficient. We further analyze a 31 GB real data set on a laptop with only 16 GB RAM to demonstrate the out-of-core computation capability of biglasso in analyzing massive data sets that cannot be accommodated by existing R packages.},
+archivePrefix = {arXiv},
+arxivId = {1701.05936},
+author = {Zeng, Yaohui and Breheny, Patrick},
+eprint = {1701.05936},
+file = {:home/privef/Bureau/thesis-celiac/articles/Zeng, Breheny - 2017 - The biglasso Package A Memory- and Computation-Efficient Solver for Lasso Model Fitting with Big Data in R.pdf:pdf},
+month = {jan},
+title = {{The biglasso Package: A Memory- and Computation-Efficient Solver for Lasso Model Fitting with Big Data in R}},
+url = {http://arxiv.org/abs/1701.05936},
+year = {2017}
+}
