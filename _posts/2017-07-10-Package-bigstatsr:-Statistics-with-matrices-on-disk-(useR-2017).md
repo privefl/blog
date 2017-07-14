@@ -1,8 +1,7 @@
 ---
 title: Package bigstatsr: Statistics with matrices on disk (useR 2017)
-
 author: Florian Privé
-date: July 10, 2017
+date: "July 10, 2017"
 layout: post
 ---
 
