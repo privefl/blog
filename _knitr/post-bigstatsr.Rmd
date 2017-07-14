@@ -17,8 +17,8 @@ unlink("backingfiles/", recursive = TRUE) # cleaning
 ```
 
 In this post, I will talk about my package **bigstatsr**, which I've just presented in a lightning talk of 5 minutes at useR!2017. 
-You can see me in action [there](https://user2017.brussels/) and find the slides [there](https://privefl.github.io/useR-2017/slides.html). 
-I should have chosen a longer talk (maybe next time) to explain more about this package. I will use this post to give you a more detailed version of the talk I gave last week in Brussels. 
+You can listen to me in action [there](https://t.co/aYt0q8MeXJ). 
+I should have chosen a longer talk to explain more about this package, maybe next time. I will use this post to give you a more detailed version of the talk I gave last week in Brussels. 
 
 ## Motivation behind bigstatsr
 
