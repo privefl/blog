@@ -1,5 +1,5 @@
 ---
-title: "Package bigstatsr: Statistics with matrices on disk (useR!2017)"
+title: "Package bigstatsr: Statistics with matrices on disk (useR 2017)"
 author: "Florian Privé"
 date: "July 10, 2017" # DO NOT USE Sys.Date()
 output:                    # DO NOT CHANGE
@@ -206,6 +206,7 @@ plot(svd_all)
 
 Function `big_randomSVD()` uses Rcpp and package **Rpsectra** to implement a fast Singular Value Decomposition for a `big.matrix` that is linear in all dimensions (standard PCA algorithm is quadratic in the smallest dimension) which makes is very fast even for large datasets (that have both dimensions that are large).
 
+
 ## Some linear models
 
 ```{r}
@@ -219,10 +220,15 @@ ind.test <- setdiff(rows_along(mat), ind.train)
 
 mult_test <- big_univLinReg(mat, y[ind.train], ind.train = ind.train, 
                             covar.train = svd_all$u[ind.train, ])
-plot(mult_test) + 
-  ggplot2::aes(color = cols_along(mat) %in% set) +
-  ggplot2::labs(color = "Causal?")
 ```
+
+```{r}
+library(ggplot2)
+plot(mult_test) + 
+  aes(color = cols_along(mat) %in% set) +
+  labs(color = "Causal?")
+```
+
 
 ```{r}
 train <- big_spLinReg(mat, y[ind.train], ind.train = ind.train, 
