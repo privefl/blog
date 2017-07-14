@@ -12,7 +12,7 @@ bibliography: bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(fig.align = "center")
+knitr::opts_chunk$set(fig.align = "center", out.width = "70%", warning = FALSE)
 unlink("backingfiles/", recursive = TRUE) # cleaning
 ```
 
@@ -27,7 +27,7 @@ I'm a PhD student in predictive human genetics. I'm basically trying to predict 
 When I began studying this dataset, I had only 8GB of RAM on my computer. I now have 64GB of RAM but it would take only copying this matrix once to make my computer begin swapping and therefore slowing down. I found a convenient solution by using the object `big.matrix` provided by the R package **bigmemory** [@Kane2013]. With this solution, you can access a matrix that is stored on disk almost as if were a standard R matrix in memory.
 
 ```{r, echo=FALSE}
-knitr::include_graphics("https://raw.githubusercontent.com/privefl/useR-2017/master/memory-solution.svg")
+knitr::include_graphics("https://cdn.rawgit.com/privefl/useR-2017/f89f5928/memory-solution.svg")
 ```
 
 Yet, some useful statistical functions were missing or not fast enough, for this kind of data. So, I implemented these. It was a good experience about programming optimized and parallelized algorithms. I'm aware that there are other packages that come with **bigmemory**, such as **biganalytics** and **bigalgebra**, that already implement some of the features I will talk about here. I will discuss why I don't use these packages. However, I use the work of other packages such as **biglasso** and **RSpectra**.
@@ -56,7 +56,7 @@ What we can see is that big matrices (`big.matrix` objects) can be accessed (rea
 An easy strategy to apply an R function to a big matrix would be the split-apply-combine strategy [@Wickham2011]. For example, you could access only a block of columns at a time, apply a (vectorized) function to this block, and then combine the results of all blocks. This is implemented in function `big_apply()`.
 
 ```{r, echo=FALSE}
-knitr::include_graphics("https://raw.githubusercontent.com/privefl/useR-2017/master/split-apply-combine.svg")
+knitr::include_graphics("https://cdn.rawgit.com/privefl/useR-2017/f89f5928/split-apply-combine.svg")
 ```
 
 ```{r}
