@@ -213,7 +213,7 @@ Function `big_randomSVD()` uses Rcpp and package **Rpsectra** to implement a fas
 M <- 100 # number of causal variables
 set <- sample(ncol(mat), M)
 y <- mat[, set] %*% rnorm(M)
-y <- y + rnorm(length(y), sd = 2 * sd(y))
+y <- y + rnorm(length(y), sd = sd(y))
 
 ind.train <- sort(sample(nrow(mat), size = 0.8 * nrow(mat)))
 ind.test <- setdiff(rows_along(mat), ind.train)
