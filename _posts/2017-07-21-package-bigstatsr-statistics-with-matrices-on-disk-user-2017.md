@@ -1,8 +1,8 @@
 ---
-title: Package bigstatsr: Statistics with matrices on disk (useR 2017)
+title: "Package bigstatsr: Statistics with matrices on disk (useR 2017)"
 
-author: Florian Privé
-date: July 21, 2017
+author: "Florian Privé"
+date: "July 21, 2017"
 layout: post
 ---
 
@@ -50,12 +50,12 @@ mat[<span class="dv">1</span>:<span class="dv">5</span>, <span class="dv">1</spa
 ## [5,]    0    0    0    0    0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mat[, <span class="dv">2</span>:<span class="dv">3</span>] &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">2</span> *<span class="st"> </span><span class="kw">nrow</span>(mat))
 mat[<span class="dv">1</span>:<span class="dv">5</span>, <span class="dv">1</span>:<span class="dv">5</span>]</code></pre></div>
-<pre><code>##      [,1]         [,2]       [,3] [,4] [,5]
-## [1,]    2  1.638964388  1.8618616    0    0
-## [2,]    3  1.556418942  0.2320768    0    0
-## [3,]    3  0.180689014 -1.0401401    0    0
-## [4,]    3 -0.197017473  0.5551599    0    0
-## [5,]    0  0.009050042 -0.4753437    0    0</code></pre>
+<pre><code>##      [,1]       [,2]       [,3] [,4] [,5]
+## [1,]    2  1.2736666  0.5692846    0    0
+## [2,]    3  0.8399589 -0.6687092    0    0
+## [3,]    3  0.3689305  0.2484250    0    0
+## [4,]    3  0.6685995  0.1270564    0    0
+## [5,]    0 -1.1185168 -0.5351000    0    0</code></pre>
 <p>What we can see is that big matrices (<code>big.matrix</code> objects) can be accessed (read/write) almost as if they were standard R matrices, but you have to be cautious. For example, doing <code>mat[1, ]</code> isn’t recommended. Indeed, big matrices, as standard R matrices, are stored by column so that it is in fact a big vector with columns stored one after the other, contiguously. So, accessing the first row would access elements that are not stored contiguously in memory, which is slow. One should always access columns rather than rows.</p>
 </div>
 <div id="apply-an-r-function-to-a-big-matrix" class="section level2">
@@ -147,8 +147,8 @@ NumericVector bigcolsums2(<span class="dt">const</span> S4&amp; BM,
 <h3>3. Use an already implemented function</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(colsums_all5 &lt;-<span class="st"> </span><span class="kw">big_colstats</span>(mat))</code></pre></div>
 <pre><code>## &#39;data.frame&#39;:    10000 obs. of  2 variables:
-##  $ sum: num  11 24 -95.8 0 0 ...
-##  $ var: num  0.0062 1.043 0.9832 0 0 ...</code></pre>
+##  $ sum: num  11 -57.8 99.4 0 0 ...
+##  $ var: num  0.0062 0.9844 0.984 0 0 ...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(colsums_all5$sum, colsums_all)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 </div>
@@ -168,27 +168,27 @@ V &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">
   small_svd &lt;-<span class="st"> </span><span class="kw">svd</span>(<span class="kw">scale</span>(mat[, <span class="dv">1</span>:<span class="dv">2000</span>]), <span class="dt">nu =</span> <span class="dv">10</span>, <span class="dt">nv =</span> <span class="dv">10</span>)
 )</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   8.548   0.040   8.586</code></pre>
+##   8.900   0.068   8.966</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(
   small_svd2 &lt;-<span class="st"> </span><span class="kw">big_SVD</span>(mat, <span class="kw">big_scale</span>(), <span class="dt">ind.col =</span> <span class="dv">1</span>:<span class="dv">2000</span>)
 )</code></pre></div>
 <pre><code>## (2)</code></pre>
 <pre><code>##    user  system elapsed 
-##   1.857   0.074   1.931</code></pre>
+##   1.881   0.088   1.969</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(small_svd2$u, small_svd$u)</code></pre></div>
 <p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-bigstatsr_files/figure-html/unnamed-chunk-13-1.png" width="70%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(
   small_svd3 &lt;-<span class="st"> </span><span class="kw">big_randomSVD</span>(mat, <span class="kw">big_scale</span>(), <span class="dt">ind.col =</span> <span class="dv">1</span>:<span class="dv">2000</span>)
 )</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.348   0.000   0.348</code></pre>
+##   0.358   0.001   0.359</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(small_svd3$u, small_svd$u)</code></pre></div>
 <p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-bigstatsr_files/figure-html/unnamed-chunk-13-2.png" width="70%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(
   svd_all &lt;-<span class="st"> </span><span class="kw">big_randomSVD</span>(mat, <span class="kw">big_scale</span>())
 )</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.797   0.094   1.889</code></pre>
+##   1.908   0.002   1.910</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(svd_all)</code></pre></div>
 <p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-bigstatsr_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /></p>
 <p>Function <code>big_randomSVD()</code> uses Rcpp and package <strong>Rpsectra</strong> to implement a fast Singular Value Decomposition for a <code>big.matrix</code> that is linear in all dimensions (standard PCA algorithm is quadratic in the smallest dimension) which makes it very fast even for large datasets (that have both dimensions that are large).</p>
@@ -234,10 +234,10 @@ pred &lt;-<span class="st"> </span><span class="kw">predict</span>(train, <span 
                       <span class="dt">covar.train =</span> svd_all$u[ind.train, ],
                       <span class="dt">alpha =</span> <span class="fl">0.5</span>, <span class="dt">ncores =</span> parallel::<span class="kw">detectCores</span>() /<span class="st"> </span><span class="dv">2</span>)
 <span class="kw">mean</span>(train2 !=<span class="st"> </span><span class="dv">0</span>) <span class="co"># percentage of predictors </span></code></pre></div>
-<pre><code>## [1] 0.1297702</code></pre>
+<pre><code>## [1] 0.1576424</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pred2 &lt;-<span class="st"> </span><span class="kw">predict</span>(train2, <span class="dt">X. =</span> mat, <span class="dt">ind.row =</span> ind.test, <span class="dt">covar.row =</span> svd_all$u[ind.test, ])
 <span class="kw">cor</span>(pred2, y[ind.test])</code></pre></div>
-<pre><code>## [1] 0.3329514</code></pre>
+<pre><code>## [1] 0.3133347</code></pre>
 </div>
 <div id="some-matrix-computations" class="section level2">
 <h2>Some matrix computations</h2>
@@ -246,12 +246,12 @@ pred &lt;-<span class="st"> </span><span class="kw">predict</span>(train, <span 
   corr &lt;-<span class="st"> </span><span class="kw">cor</span>(mat[, <span class="dv">1</span>:<span class="dv">2000</span>])
 )</code></pre></div>
 <pre><code>##    user  system elapsed 
-##  10.815   0.007  10.815</code></pre>
+##  10.784   0.010  10.790</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(
   corr2 &lt;-<span class="st"> </span><span class="kw">big_cor</span>(mat, <span class="dt">ind.col =</span> <span class="dv">1</span>:<span class="dv">2000</span>)
 )</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.729   0.013   0.745</code></pre>
+##   0.734   0.009   0.743</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(corr2, corr)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 </div>
