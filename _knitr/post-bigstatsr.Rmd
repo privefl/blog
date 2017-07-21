@@ -1,7 +1,7 @@
 ---
 title: "Package bigstatsr: Statistics with matrices on disk (useR 2017)"
 author: "Florian Privé"
-date: "July 10, 2017" # DO NOT USE Sys.Date()
+date: "July 21, 2017" # DO NOT USE Sys.Date()
 output:                    # DO NOT CHANGE
   prettydoc::html_pretty:  # DO NOT CHANGE
     theme: cayman          # DO NOT CHANGE
@@ -18,7 +18,7 @@ unlink("backingfiles/", recursive = TRUE) # cleaning
 
 In this post, I will talk about my package **bigstatsr**, which I've just presented in a lightning talk of 5 minutes at useR!2017. 
 You can listen to me in action [there](https://t.co/aYt0q8MeXJ). 
-I should have chosen a longer talk to explain more about this package, maybe next time. I will use this post to give you a more detailed version of the talk I gave last week in Brussels. 
+I should have chosen a longer talk to explain more about this package, maybe next time. I will use this post to give you a more detailed version of the talk I gave in Brussels. 
 
 ## Motivation behind bigstatsr
 
@@ -291,6 +291,6 @@ unlink("backingfiles/", recursive = TRUE)
 - you write more efficient algorithms, 
 - you can use different types of data, for example, in my field, I'm storing my data with only 1 byte per element (rather than 8 bytes for a standard R matrix).
 
-
+In a next post, I'll try to talk about good practices on how to use parallelism in R.
 
 ## References
