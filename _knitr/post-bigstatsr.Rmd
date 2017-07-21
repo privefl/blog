@@ -213,7 +213,7 @@ Function `big_randomSVD()` uses Rcpp and package **Rpsectra** to implement a fas
 M <- 100 # number of causal variables
 set <- sample(ncol(mat), M)
 y <- mat[, set] %*% rnorm(M)
-y <- y + rnorm(length(y), sd = sd(y))
+y <- y + rnorm(length(y), sd = 2 * sd(y))
 
 ind.train <- sort(sample(nrow(mat), size = 0.8 * nrow(mat)))
 ind.test <- setdiff(rows_along(mat), ind.train)
@@ -222,11 +222,17 @@ mult_test <- big_univLinReg(mat, y[ind.train], ind.train = ind.train,
                             covar.train = svd_all$u[ind.train, ])
 ```
 
-```{r}
+```{r, eval=FALSE}
 library(ggplot2)
 plot(mult_test) + 
   aes(color = cols_along(mat) %in% set) +
   labs(color = "Causal?")
+```
+```{r, echo=FALSE}
+# problem in RMarkdown
+tmp <- ggplot_build(plot(mult_test))
+tmp[["data"]][[1]][["colour"]] <- ifelse(cols_along(mat) %in% set, "#00BFC4", "#F8766D")
+plot(ggplot_gtable(tmp))
 ```
 
 
