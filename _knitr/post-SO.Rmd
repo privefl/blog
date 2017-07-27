@@ -17,8 +17,7 @@ One of the reason I've began frenetically answering questions on Stack Overflow 
 We'll use David Robinson's package **stackr** to get data from Stack Overflow API.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(fig.align = "center", out.width = "80%", fig.asp = 0.75,
-                      fig.width = 8, comment = "")
+knitr::opts_chunk$set(fig.align = "center", out.width = "80%", fig.asp = 0.75, fig.width = 8)
 ```
 
 ```{r}
@@ -64,7 +63,7 @@ p +
 
 So it seems I've answered `r nrow(myAnswers)` questions over the past month. Interestingly, my answers with the greatest scores were not accepted. You can get a look at these using 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, comment = ""}
 browseAnswersText <- function(answers) {
   paste0("https://stackoverflow.com/questions/", answers$question_id) %>%
     paste0('"', ., '"') %>%
@@ -86,7 +85,7 @@ myAnswers %>%
   )
 ```
 
-My acceptance rate is quite bad. `r "\U0001f622"`
+My acceptance rate is quite bad. 
 
 
 ### Tags I'm involved in

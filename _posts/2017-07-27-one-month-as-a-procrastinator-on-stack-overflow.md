@@ -41,8 +41,8 @@ myRep &lt;-<span class="st"> </span><span class="kw">stack_users</span>(myID, <s
 <span class="st">  </span><span class="kw">xlim</span>(<span class="kw">as.POSIXct</span>(<span class="kw">c</span>(<span class="kw">today</span>() -<span class="st"> </span><span class="kw">months</span>(<span class="dv">1</span>), <span class="kw">today</span>()))) +
 <span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) +
 <span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Evolution of my SO reputation over the last month&quot;</span>)</code></pre></div>
-<pre><code>Warning: Removed 39 rows containing non-finite values (stat_smooth).</code></pre>
-<pre><code>Warning: Removed 39 rows containing missing values (geom_point).</code></pre>
+<pre><code>## Warning: Removed 39 rows containing non-finite values (stat_smooth).</code></pre>
+<pre><code>## Warning: Removed 39 rows containing missing values (geom_point).</code></pre>
 <p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-SO_files/figure-html/unnamed-chunk-2-2.png" width="80%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="analyzing-my-answers" class="section level3">
@@ -52,21 +52,21 @@ myRep &lt;-<span class="st"> </span><span class="kw">stack_users</span>(myID, <s
 <span class="st">    </span><span class="kw">select</span>(-<span class="kw">starts_with</span>(<span class="st">&quot;owner&quot;</span>)) %&gt;%
 <span class="st">    </span><span class="kw">arrange</span>(<span class="kw">desc</span>(score)) %&gt;%
 <span class="st">    </span><span class="kw">as_tibble</span>())</code></pre></div>
-<pre><code># A tibble: 63 x 7
-   is_accepted score  last_activity_date       creation_date answer_id
-         &lt;lgl&gt; &lt;int&gt;              &lt;dttm&gt;              &lt;dttm&gt;     &lt;int&gt;
- 1       FALSE     9 2017-07-17 11:07:14 2017-07-16 22:21:05  45132967
- 2       FALSE     5 2017-07-25 09:27:02 2017-07-25 09:27:02  45296612
- 3       FALSE     5 2017-07-09 08:27:24 2017-07-09 08:27:24  44993632
- 4        TRUE     4 2017-06-30 18:57:23 2017-06-30 18:56:04  44851544
- 5       FALSE     3 2017-07-09 11:15:17 2017-07-09 11:15:17  44994826
- 6        TRUE     3 2017-07-02 10:27:29 2017-07-02 10:27:29  44868837
- 7        TRUE     2 2017-07-25 19:44:33 2017-07-25 19:44:33  45310305
- 8        TRUE     2 2017-07-25 15:41:12 2017-07-25 15:41:12  45305138
- 9        TRUE     2 2017-07-23 12:55:24 2017-07-23 12:55:24  45264278
-10        TRUE     2 2017-07-21 20:50:42 2017-07-21 20:13:12  45244205
-# ... with 53 more rows, and 2 more variables: question_id &lt;int&gt;,
-#   last_edit_date &lt;dttm&gt;</code></pre>
+<pre><code>## # A tibble: 63 x 7
+##    is_accepted score  last_activity_date       creation_date answer_id
+##          &lt;lgl&gt; &lt;int&gt;              &lt;dttm&gt;              &lt;dttm&gt;     &lt;int&gt;
+##  1       FALSE     9 2017-07-17 11:07:14 2017-07-16 22:21:05  45132967
+##  2       FALSE     5 2017-07-25 09:27:02 2017-07-25 09:27:02  45296612
+##  3       FALSE     5 2017-07-09 08:27:24 2017-07-09 08:27:24  44993632
+##  4        TRUE     4 2017-06-30 18:57:23 2017-06-30 18:56:04  44851544
+##  5       FALSE     3 2017-07-09 11:15:17 2017-07-09 11:15:17  44994826
+##  6        TRUE     3 2017-07-02 10:27:29 2017-07-02 10:27:29  44868837
+##  7        TRUE     2 2017-07-25 19:44:33 2017-07-25 19:44:33  45310305
+##  8        TRUE     2 2017-07-25 15:41:12 2017-07-25 15:41:12  45305138
+##  9        TRUE     2 2017-07-23 12:55:24 2017-07-23 12:55:24  45264278
+## 10        TRUE     2 2017-07-21 20:50:42 2017-07-21 20:13:12  45244205
+## # ... with 53 more rows, and 2 more variables: question_id &lt;int&gt;,
+## #   last_edit_date &lt;dttm&gt;</code></pre>
 <p>So it seems I’ve answered 63 questions over the past month. Interestingly, my answers with the greatest scores were not accepted. You can get a look at these using</p>
 <pre><code>sapply(c(&quot;https://stackoverflow.com/questions/45045318&quot;,
          &quot;https://stackoverflow.com/questions/45295642&quot;,
@@ -78,26 +78,26 @@ myRep &lt;-<span class="st"> </span><span class="kw">stack_users</span>(myID, <s
     <span class="dt">N =</span> <span class="kw">n</span>(),
     <span class="dt">acceptance_ratio =</span> <span class="kw">mean</span>(is_accepted)
   )</code></pre></div>
-<pre><code># A tibble: 8 x 3
-  score     N acceptance_ratio
-  &lt;int&gt; &lt;int&gt;            &lt;dbl&gt;
-1    -2     1        0.0000000
-2     0    32        0.3125000
-3     1    14        0.4285714
-4     2    10        0.7000000
-5     3     2        0.5000000
-6     4     1        1.0000000
-7     5     2        0.0000000
-8     9     1        0.0000000</code></pre>
-<p>My acceptance rate is quite bad. \U0001f622</p>
+<pre><code>## # A tibble: 8 x 3
+##   score     N acceptance_ratio
+##   &lt;int&gt; &lt;int&gt;            &lt;dbl&gt;
+## 1    -2     1        0.0000000
+## 2     0    32        0.3125000
+## 3     1    14        0.4285714
+## 4     2    10        0.7000000
+## 5     3     2        0.5000000
+## 6     4     1        1.0000000
+## 7     5     2        0.0000000
+## 8     9     1        0.0000000</code></pre>
+<p>My acceptance rate is quite bad.</p>
 </div>
 <div id="tags-im-involved-in" class="section level3">
 <h3>Tags I’m involved in</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">stack_users</span>(myID, <span class="st">&quot;tags&quot;</span>, <span class="dt">num_pages =</span> <span class="dv">10</span>) %&gt;%
 <span class="st">  </span><span class="kw">select</span>(name, count) %&gt;%
 <span class="st">  </span>DT::<span class="kw">datatable</span>() </code></pre></div>
-<div id="htmlwidget-100a39dc7367d516be6c" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-100a39dc7367d516be6c">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79"],["r","dplyr","dataframe","r-bigmemory","rcpp","parallel-foreach","rmarkdown","matrix","data.table","foreach","doparallel","list","loops","leaflet","knitr","for-loop","devtools","ggplot2","eigen","c++","apply","assign","csv","plot","parallel-processing","rlang","r-leaflet","tidyverse","time","web-crawler","web-scraping","roxygen2","r-package","rparallel","sample","select","shiny","shinyapps","sorting","split","statistics","survival","svd","tibble","tidyeval","pdf","random","plotly","plyr","primes","purrr","quote","multithreading","optimization","package","pander","panel-data","curve","bigdata","correlation","cox-regression","cross-validation","eigenvector","ellipsis","expr","ff","algorithm","data-manipulation","glm","grouping","indices","integral","integrate","domc","function","latex","lubridate","machine-learning","math"],[79,10,6,5,5,4,4,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>name<\/th>\n      <th>count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"crosstalkOptions":{"key":null,"group":null},"columnDefs":[{"className":"dt-right","targets":2},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row"}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-f52a1b23c25d3c47bec2" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f52a1b23c25d3c47bec2">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79"],["r","dplyr","dataframe","r-bigmemory","rcpp","parallel-foreach","rmarkdown","matrix","data.table","foreach","doparallel","list","loops","leaflet","knitr","for-loop","devtools","ggplot2","eigen","c++","apply","assign","csv","plot","parallel-processing","rlang","r-leaflet","tidyverse","time","web-crawler","web-scraping","roxygen2","r-package","rparallel","sample","select","shiny","shinyapps","sorting","split","statistics","survival","svd","tibble","tidyeval","pdf","random","plotly","plyr","primes","purrr","quote","multithreading","optimization","package","pander","panel-data","curve","bigdata","correlation","cox-regression","cross-validation","eigenvector","ellipsis","expr","ff","algorithm","data-manipulation","glm","grouping","indices","integral","integrate","domc","function","latex","lubridate","machine-learning","math"],[79,10,6,5,5,4,4,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>name<\/th>\n      <th>count<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"crosstalkOptions":{"key":null,"group":null},"columnDefs":[{"className":"dt-right","targets":2},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row"}},"evals":[],"jsHooks":[]}</script>
 <p><br/></p>
 <ul>
 <li><p>I’m obviously answering only R questions</p></li>
