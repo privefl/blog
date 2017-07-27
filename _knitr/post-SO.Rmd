@@ -97,7 +97,7 @@ stack_users(myID, "tags", num_pages = 10) %>%
   DT::datatable() 
 ```
 
-</br>
+<br/>
 
 - I'm obviously answering only R questions
 
