@@ -9,12 +9,10 @@ output:                    # DO NOT CHANGE
 ---
 
 Hello everyone, I'm 6103040 aka F. Privé.
-In this post, I will give some insights about answering questions on Stack Overflow for a month.
+In this post, I will give some insights about answering questions on Stack Overflow (SO) for a month.
 One of the reason I've began frenetically answering questions on Stack Overflow is to procrastinate finishing a scientific manuscript.
 
 ## My activity on Stack Overflow
-
-### Analyzing my reputation
 
 We'll use David Robinson's package **stackr** to get data from Stack Overflow API.
 
@@ -31,6 +29,9 @@ suppressMessages({
   library(lubridate)
 })
 ```
+
+
+### Analyzing my reputation
 
 ```{r}
 myID <- "6103040"
@@ -96,24 +97,35 @@ stack_users(myID, "tags", num_pages = 10) %>%
   DT::datatable() 
 ```
 
-- I'm obviously answering only R questions,
-- Questions about data frames or **dplyr** are quite easy so that I've answered several of them,
+</br>
+
+- I'm obviously answering only R questions
+
+- Questions about data frames or **dplyr** are quite easy so that I've answered several of them
+
 - I'm answering tags *r-bigmemory*, *rcpp*, *foreach*, *parallel-foreach* as I'm getting good at it because of the package I've developed (see [my previous post](https://privefl.github.io/blog/package-bigstatsr-statistics-with-matrices-on-disk-user-2017/)).
 
 
 ## Some insights from this experience
 
-- **purrr** is badly received as a proxy of base R functions like `sapply` or `lapply` (https://stackoverflow.com/questions/45101045/why-use-purrrmap-instead-of-lapply)
+- **purrr** is badly received as a proxy of base R functions such as `sapply` and `lapply` (https://stackoverflow.com/questions/45101045/why-use-purrrmap-instead-of-lapply)
+
 - I like **dplyr** a lot but many times people are trying to do things that are well-suited for base R 
     - https://stackoverflow.com/questions/45244063/using-dplyr-to-replace-a-vector-of-names-with-new-names
     - https://stackoverflow.com/questions/45243363/dplyr-to-calculate-of-prevalence-of-a-variable-in-a-condition
     - https://stackoverflow.com/questions/44881723/replace-column-by-another-table
     - https://stackoverflow.com/questions/44995997/create-a-new-variable-using-dplyrmutate-and-pasting-two-existing-variables-for
     - https://stackoverflow.com/questions/45309455/mean-function-producing-same-result
+    
 - It's very important to know base classes and their accessors (you just need to read [Advanced R](http://adv-r.had.co.nz/))
+
 - The tidyverse solves lots of problems (you just need to read [R for Data Science](http://r4ds.had.co.nz/))
-- Guiding to a solution is much more fun than just giving it (https://stackoverflow.com/questions/45308904/how-can-i-make-a-list-of-data-frames-which-have-the-same-values-in-the-first-col). Yet, I don't think it's the philosophy of SO. 
+
+- Guiding to a solution is much more fun than just giving it (https://stackoverflow.com/questions/45308904). Yet, I don't think it's the philosophy of SO. 
+
 
 ## Conclusion and bonuses
 
-I think it was a good experience to answer questions on SO for a month. Yet, I'm getting tired of it for many reasons. I'm proud of [this algorithm written only with dplyr] (https://stackoverflow.com/a/45302898/6103040) that automatically get you a combination of variables of the dataset to form a [unique key](https://en.wikipedia.org/wiki/Unique_key). Also, I wanted to make a blog post about good practices for parallelization in R. I'm not sure how to do and which format to use, but you can get [some good practices in one of my answer](https://stackoverflow.com/a/45196081/6103040). Finally, if you miss the previous infinite printing of tibble, you can get a workaround [there](https://stackoverflow.com/a/44868837/6103040).
+I think it was a good experience to answer questions on SO for a month. Yet, I'm getting tired of it for many reasons. 
+
+I'm proud of [this algorithm written only with **dplyr**](https://stackoverflow.com/a/45302898/6103040) that automatically get you a combination of variables to form a [unique key](https://en.wikipedia.org/wiki/Unique_key) of a dataset. Also, I wanted to make a blog post about good practices for parallelization in R. I'm not sure how to do it and which format to use, but you can get [some good practices in one of my answer](https://stackoverflow.com/a/45196081/6103040). Finally, if you miss the previous infinite printing of tibble, you can get a workaround [there](https://stackoverflow.com/a/44868837/6103040).
