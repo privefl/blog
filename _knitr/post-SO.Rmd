@@ -10,7 +10,7 @@ output:                    # DO NOT CHANGE
 
 Hello everyone, I'm 6103040 aka F. Privé.
 In this post, I will give some insights about answering questions on Stack Overflow (SO) for a month.
-One of the reason I've began frenetically answering questions on Stack Overflow is to procrastinate finishing a scientific manuscript.
+One of the reason I've began frenetically answering questions on Stack Overflow was to procrastinate while finishing a scientific manuscript.
 
 ## My activity on Stack Overflow
 
@@ -31,7 +31,7 @@ suppressMessages({
 ```
 
 
-### Analyzing my reputation
+### Evolution my SO reputation
 
 ```{r}
 myID <- "6103040"
@@ -44,12 +44,12 @@ myRep <- stack_users(myID, "reputation-history", num_pages = 10)
     bigstatsr:::MY_THEME() +
     geom_point() +
     labs(x = "Date", y = "Reputation", 
-         title = "My Stack Overflow reputation over time"))
+         title = "Evolution of my SO reputation over time"))
 
 p +
   xlim(as.POSIXct(c(today() - months(1), today()))) +
   geom_smooth(method = "lm") +
-  ggtitle("My Stack Overflow reputation within last month")
+  ggtitle("Evolution of my SO reputation over the last month")
 ```
 
 ### Analyzing my answers
@@ -89,7 +89,7 @@ myAnswers %>%
 My acceptance rate is quite bad. `r "\U0001f622"`
 
 
-### Analyzing my tags
+### Tags I'm involved in
 
 ```{r}
 stack_users(myID, "tags", num_pages = 10) %>%
@@ -110,22 +110,22 @@ stack_users(myID, "tags", num_pages = 10) %>%
 
 - **purrr** is badly received as a proxy of base R functions such as `sapply` and `lapply` (https://stackoverflow.com/questions/45101045/why-use-purrrmap-instead-of-lapply)
 
-- I like **dplyr** a lot but many times people are trying to do things that are well-suited for base R 
+- People tend to use **dplyr** where base R functions well-suited:
     - https://stackoverflow.com/questions/45244063/using-dplyr-to-replace-a-vector-of-names-with-new-names
     - https://stackoverflow.com/questions/45243363/dplyr-to-calculate-of-prevalence-of-a-variable-in-a-condition
     - https://stackoverflow.com/questions/44881723/replace-column-by-another-table
     - https://stackoverflow.com/questions/44995997/create-a-new-variable-using-dplyrmutate-and-pasting-two-existing-variables-for
     - https://stackoverflow.com/questions/45309455/mean-function-producing-same-result
     
-- It's very important to know base classes and their accessors (you just need to read [Advanced R](http://adv-r.had.co.nz/))
+- To avoid basic issues, I find very important to know base R classes and their accessors well (you just need to read [Advanced R](http://adv-r.had.co.nz/))
 
 - The tidyverse solves lots of problems (you just need to read [R for Data Science](http://r4ds.had.co.nz/))
 
-- Guiding to a solution is much more fun than just giving it (https://stackoverflow.com/questions/45308904). Yet, I don't think it's the philosophy of SO. 
+- Guiding to a solution is much more fun than just giving it (https://stackoverflow.com/questions/45308904). 
 
 
 ## Conclusion and bonuses
 
-I think it was a good experience to answer questions on SO for a month. Yet, I'm getting tired of it for many reasons. 
+I think it has been a good experience to answer questions on SO for a month. 
 
-I'm proud of [this algorithm written only with **dplyr**](https://stackoverflow.com/a/45302898/6103040) that automatically get you a combination of variables to form a [unique key](https://en.wikipedia.org/wiki/Unique_key) of a dataset. Also, I wanted to make a blog post about good practices for parallelization in R. I'm not sure how to do it and which format to use, but you can get [some good practices in one of my answer](https://stackoverflow.com/a/45196081/6103040). Finally, if you miss the previous infinite printing of tibble, you can get a workaround [there](https://stackoverflow.com/a/44868837/6103040).
+I'm proud of [this algorithm written only with **dplyr**](https://stackoverflow.com/a/45302898/6103040) that automatically get you a combination of variables to form a [unique key](https://en.wikipedia.org/wiki/Unique_key) of a dataset. Also, I wanted to make a blog post about good practices for parallelization in R. I'm not sure how to do it and which format to use, but, for now, you can get [some good practices in one of my answer](https://stackoverflow.com/a/45196081/6103040). Finally, if you miss the previous infinite printing of a tibble, you can get a workaround [there](https://stackoverflow.com/a/44868837/6103040).
