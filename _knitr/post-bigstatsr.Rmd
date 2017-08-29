@@ -13,8 +13,11 @@ bibliography: bibliography.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.align = "center", out.width = "70%", warning = FALSE)
-unlink("backingfiles/", recursive = TRUE) # cleaning
 ```
+
+**Edit:** I've edited this post (August 29, 2017) to reflect the major change in package **bigstatsr**: it doesn't depend on the **bigmemory** package anymore (for multiple reasons with the first one being able to put this package on CRAN). So, the Filebacked Big Matrices (FBMs) mentioned hereinafter aren't `big.matrix` objects anymore, but something very similar to filebacked `big.matrix` objects.
+
+***
 
 In this post, I will talk about my package **bigstatsr**, which I've just presented in a lightning talk of 5 minutes at useR!2017. 
 You can listen to me in action [there](https://t.co/aYt0q8MeXJ). 
@@ -30,16 +33,16 @@ When I began studying this dataset, I had only 8GB of RAM on my computer. I now 
 knitr::include_graphics("https://cdn.rawgit.com/privefl/useR-2017/f89f5928/memory-solution.svg")
 ```
 
-Yet, for these special matrices, some useful statistical functions were missing or not fast enough. So, I implemented these. It was a good experience about programming optimized and parallelized algorithms. I'm aware that there are other packages that come with **bigmemory**, such as **biganalytics** and **bigalgebra**, that already implement some of the features I will talk about in this post. I will discuss why I don't use these packages. However, I use the work of other packages such as **biglasso** and **RSpectra**.
-
-## Introduction to bigmemory
+## Introduction to Filebacked Big Matrices (FBMs)
 
 ```{r}
-# loading package bigstatsr (and bigmemory)
+# loading package bigstatsr
 library(bigstatsr)
-# initializing some matrix on disk: wrapper to bigmemory::big.matrix()
-mat <- FBM(backingroot = "matrix-on-disk", descriptor = FALSE)(5e3, 10e3)
+# initializing some matrix on disk
+mat <- FBM(5e3, 10e3)
+class(mat)
 dim(mat)
+mat$backingfile
 mat[1:5, 1:5]
 mat[1, 1] <- 2
 mat[1:5, 1:5]
@@ -49,11 +52,11 @@ mat[, 2:3] <- rnorm(2 * nrow(mat))
 mat[1:5, 1:5]
 ```
 
-What we can see is that big matrices (`big.matrix` objects) can be accessed (read/write) almost as if they were standard R matrices, but you have to be cautious. For example, doing `mat[1, ]` isn't recommended. Indeed, big matrices, as standard R matrices, are stored by column so that it is in fact a big vector with columns stored one after the other, contiguously. So, accessing the first row would access elements that are not stored contiguously in memory, which is slow. One should always access columns rather than rows.
+What we can see is that FBMs can be accessed (read/write) almost as if they were standard R matrices, but you have to be cautious. For example, doing `mat[1, ]` isn't recommended. Indeed, FBMs, as standard R matrices, are stored by column so that it is in fact a big vector with columns stored one after the other, contiguously. So, accessing the first row would access elements that are not stored contiguously in memory, which is slow. One should always access columns rather than rows.
 
-## Apply an R function to a big matrix
+## Apply an R function to a FBM
 
-An easy strategy to apply an R function to a big matrix would be the split-apply-combine strategy [@Wickham2011]. For example, you could access only a block of columns at a time, apply a (vectorized) function to this block, and then combine the results of all blocks. This is implemented in function `big_apply()`.
+An easy strategy to apply an R function to a FBM would be the split-apply-combine strategy [@Wickham2011]. For example, you could access only a block of columns at a time, apply a (vectorized) function to this block, and then combine the results of all blocks. This is implemented in function `big_apply()`.
 
 ```{r, echo=FALSE}
 knitr::include_graphics("https://cdn.rawgit.com/privefl/useR-2017/f89f5928/split-apply-combine.svg")
@@ -71,32 +74,28 @@ colsums_all <- big_apply(mat, a.FUN = function(X, ind) colSums(X[, ind]),
                          a.combine = 'c')
 ```
 
-When the split-apply-combine strategy can be used for a given function, you could use `big_apply()` to get the results, while accessing only small blocks of columns (or rows) at a time. 
-Package **biganalytics**, by the creators of **bigmemory**, provides a way to apply an R function to margins of a `big.matrix`. Yet, for example, if the `big.matrix` has a lot of columns, it would be much slower to loop through all columns rather that applying a vectorized function to blocks of columns. You can find more examples of applications for `big_apply()` [there](https://privefl.github.io/bigstatsr/reference/big_apply.html).
+When the split-apply-combine strategy can be used for a given function, you could use `big_apply()` to get the results, while accessing only small blocks of columns (or rows) at a time. You can find more examples of applications for `big_apply()` [there](https://privefl.github.io/bigstatsr/reference/big_apply.html).
 
-```{r}
-colsums_all2 <- biganalytics::apply(mat, 2, sum)
-all.equal(colsums_all2, colsums_all)
-```
+## Use Rcpp with a FBM
 
-## Use Rcpp with a big matrix
+Using Rcpp with a FBM is super easy. Let's use the previous example, i.e. the computation of the colsums of a FBM. We will do it in 3 different ways.
 
-Using Rcpp with a `big.matrix` is super easy. Let's use the previous example, i.e. the computation of the colsums of a `big.matrix`. We will do it in 3 different ways.
+### 1. Using the simple accessor
 
-### 1. Using the bigmemory way
+Note: A FBM is a reference class, which is also an environment.
 
 ```{Rcpp}
-// [[Rcpp::depends(bigmemory, BH)]]
-#include <bigmemory/MatrixAccessor.hpp>
+// [[Rcpp::depends(bigstatsr, BH)]]
+#include <bigstatsr/BMAcc.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericVector bigcolsums(const S4& BM) {
+NumericVector bigcolsums(Environment BM) {
   
-  XPtr<BigMatrix> xpMat = BM.slot("address");
-  MatrixAccessor<double> macc(*xpMat);
+  XPtr<FBM> xpBM = BM["address"];
+  BMAcc<double> macc(xpBM);
   
   int n = macc.nrow();
   int m = macc.ncol();
@@ -106,7 +105,7 @@ NumericVector bigcolsums(const S4& BM) {
 
   for (j = 0; j < m; j++) 
     for (i = 0; i < n; i++) 
-      res[j] += macc[j][i];
+      res[j] += macc(i, j);
 
   return res;
 }
@@ -120,20 +119,21 @@ all.equal(colsums_all3, colsums_all)
 ### 2. Using the bigstatsr way
 
 ```{Rcpp}
-// [[Rcpp::depends(bigstatsr, bigmemory, BH)]]
-#include <bigstatsr/SubMatAcc.h>
+// [[Rcpp::depends(bigstatsr, BH)]]
+#include <bigstatsr/BMAcc.h>
+#include <Rcpp.h>
+
+using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericVector bigcolsums2(const S4& BM,
+NumericVector bigcolsums2(Environment BM,
                           const IntegerVector& rowInd,
                           const IntegerVector& colInd) {
   
-  XPtr<BigMatrix> xpMat = BM.slot("address");
+  XPtr<FBM> xpBM = BM["address"];
   // C++ indices begin at 0
-  IntegerVector rows = rowInd - 1;
-  IntegerVector cols = colInd - 1;
   // An accessor of only part of the big.matrix
-  SubMatAcc<double> macc(*xpMat, rows, cols);
+  SubBMAcc<double> macc(xpBM, rowInd - 1, colInd - 1);
   
   int n = macc.nrow();
   int m = macc.ncol();
@@ -154,7 +154,7 @@ colsums_all4 <- bigcolsums2(mat, rows_along(mat), cols_along(mat))
 all.equal(colsums_all4, colsums_all)
 ```
 
-In **bigstatsr**, most of the functions have parameters for subsetting rows and columns because it is often useful. One of the main reasons why I don't use package **bigalgebra** is its lack of subsetting options. 
+In **bigstatsr**, most of the functions have parameters for subsetting rows and columns because it is often useful. 
 
 ### 3. Use an already implemented function
 
@@ -164,7 +164,6 @@ all.equal(colsums_all5$sum, colsums_all)
 ```
 
 ## Principal Component Analysis
-
 
 Let's begin by filling the matrix with random numbers in a tricky way.
 
@@ -204,7 +203,7 @@ system.time(
 plot(svd_all)
 ```
 
-Function `big_randomSVD()` uses Rcpp and package **Rpsectra** to implement a fast Singular Value Decomposition for a `big.matrix` that is linear in all dimensions (standard PCA algorithm is quadratic in the smallest dimension) which makes it very fast even for large datasets (that have both dimensions that are large).
+Function `big_randomSVD()` uses Rcpp and package **Rpsectra** to implement a fast Singular Value Decomposition for a FBM that is linear in all dimensions (standard PCA algorithm is quadratic in the smallest dimension) which makes it very fast even for large datasets (that have both dimensions that are large).
 
 
 ## Some linear models
@@ -230,6 +229,7 @@ plot(mult_test) +
 ```
 ```{r, echo=FALSE}
 # problem in RMarkdown
+library(ggplot2)
 tmp <- ggplot_build(plot(mult_test))
 tmp[["data"]][[1]][["colour"]] <- ifelse(cols_along(mat) %in% set, "#00BFC4", "#F8766D")
 plot(ggplot_gtable(tmp))
@@ -240,7 +240,7 @@ plot(ggplot_gtable(tmp))
 train <- big_spLinReg(mat, y[ind.train], ind.train = ind.train, 
                       covar.train = svd_all$u[ind.train, ],
                       alpha = 0.5)
-pred <- predict(train, X. = mat, ind.row = ind.test, covar.row = svd_all$u[ind.test, ])
+pred <- predict(train, X = mat, ind.row = ind.test, covar.row = svd_all$u[ind.test, ])
 plot(apply(pred, 2, cor, y = y[ind.test]))
 ```
 
@@ -262,11 +262,11 @@ So, that's why I came up with the idea of Cross-Model Selection and Averaging (C
 
 ```{r}
 train2 <- big_CMSA(big_spLinReg, feval = function(pred, target) cor(pred, target), 
-                   X. = mat, y.train = y[ind.train], ind.train = ind.train, 
+                   X = mat, y.train = y[ind.train], ind.train = ind.train, 
                       covar.train = svd_all$u[ind.train, ],
-                      alpha = 0.5, ncores = parallel::detectCores() / 2)
+                      alpha = 0.5, ncores = nb_cores())
 mean(train2 != 0) # percentage of predictors 
-pred2 <- predict(train2, X. = mat, ind.row = ind.test, covar.row = svd_all$u[ind.test, ])
+pred2 <- predict(train2, X = mat, ind.row = ind.test, covar.row = svd_all$u[ind.test, ])
 cor(pred2, y[ind.test])
 ```
 
@@ -282,20 +282,17 @@ system.time(
 system.time(
   corr2 <- big_cor(mat, ind.col = 1:2000)
 )
-all.equal(corr2, corr)
+class(corr2)
+all.equal(corr2[], corr)
 ```
 
 
-```{r cleaning, include=FALSE}
-unlink("backingfiles/", recursive = TRUE)
-```
-
-## Advantages of using big.matrix objects
+## Advantages of using FBM objects
 
 - you can apply algorithms on 100GB of data,
 - you can easily parallelize your algorithms because the data on disk is shared,
 - you write more efficient algorithms, 
-- you can use different types of data, for example, in my field, I'm storing my data with only 1 byte per element (rather than 8 bytes for a standard R matrix).
+- you can use different types of data, for example, in my field, I'm storing my data with only 1 byte per element (rather than 8 bytes for a standard R matrix). See [the documentation fo the FBM class](https://privefl.github.io/bigstatsr/reference/FBM-class.html) for details.
 
 In a next post, I'll try to talk about good practices on how to use parallelism in R.
 
