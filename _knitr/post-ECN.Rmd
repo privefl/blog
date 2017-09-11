@@ -1,0 +1,132 @@
+---
+title: "Scraping some French medical school rankings"
+author: "Florian Privé"
+date: "September 10, 2017" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.align = "center", out.width = "70%", dev = "svg")
+```
+
+In this post, I will analyze the results of the "épreuves classantes nationales (ECN)", which is a competitive examination at the end of the 6th year of medical school in France. First ones get to choose first where they want to continue their medical training.
+
+## A very clean dataset
+
+The data is in a PDF [there](https://goo.gl/wUXvjk). I'm not an expert in scraping and parsing data but this was actually very simple due to well-formatted dataset. 
+
+If you see that I'm doing something too complicated or could do it cleaner or faster, please comment this post and help learn some scraping/parsing jedi techniques.
+
+### Scraping
+
+I'll use package **pdftools** get the text from this PDF.
+
+```{r}
+head(txt <- pdftools::pdf_text("https://goo.gl/wUXvjk"), n = 3)
+```
+
+### Parsing
+
+I'll use the little I know about regular expressions to parse this data.
+
+```{r}
+pat <- "([0-9]{4} [M\\.|Mme|Mlle]{1}.*?, [né|née]{1}.*?)\\."
+data <- unlist(gsubfn::strapply(txt, pattern = pat))
+
+head(data)
+```
+
+```{r, include=FALSE}
+stopifnot(identical(length(data), 8370L))
+```
+
+
+```{r}
+library(stringr)
+
+data_parsed <- matrix(NA_character_, length(data), 7)
+data_words <- str_extract_all(data, boundary("word"))
+data_parsed[, 1:4] <- t(sapply(data_words, head, n = 4))
+data_parsed[, 5:7] <- t(sapply(data_words, tail, n = 3))
+head(data_parsed)
+```
+
+```{r, include=FALSE}
+stopifnot(identical(nrow(data_parsed), 8370L))
+stopifnot(identical(length(table(data_parsed[, 2])), 3L))
+stopifnot(identical(sum(table(data_parsed[, 2])), 8370L))
+```
+
+```{r}
+suppressMessages(library(tidyverse))
+
+data_parsed2 <- as_tibble(data_parsed) %>%
+  transmute(
+    ranking = as.integer(V1),
+    is_male = (V2 == "M"),
+    family_name = V3,
+    first_name = V4,
+    birth_date = pmap(list(V5, V6, V7), function(d, m, y) {
+      paste(d, m, y, collapse = " ")
+    }) %>% lubridate::dmy()
+  ) 
+
+data_parsed2
+```
+
+So, here there is a problem with the people who have a family names composed of multiple words.
+
+## Analysis
+
+#### Proportion male/female
+
+```{r}
+mean(data_parsed2$is_male)
+```
+
+I'm still a bit surprised there are only 43% of males in French medical schools.
+
+#### How old are they?
+
+```{r}
+myggplot <- function(...) bigstatsr:::MY_THEME(ggplot(...))
+
+myggplot(data_parsed2) +
+  geom_histogram(aes(x = birth_date), bins = 100)
+```
+
+If one pass without repeating any year, they would be born in 1993, like me. There are a lot of people who repeat the first year because it is a very selective competitive examination, so who were born in 1992. Yet, there are quite a lot of older people and even some very young ones (we'll see more in another plot).
+
+#### How males compare to females when it comes to ranking?
+
+```{r}
+myggplot(mutate(data_parsed2, prop_male = cummean(data_parsed2$is_male))) + 
+  geom_hline(yintercept = mean(data_parsed2$is_male), col = "red") +
+  geom_line(aes(x = ranking, y = prop_male))
+```
+
+Even though the first one is a female, among the best ranked people, there is a majority of males.
+
+#### Ranking versus Age
+
+```{r}
+(myggplot(data_parsed2) +
+   geom_point(aes(ranking, birth_date, color = is_male)) +
+   aes(text = bigstatsr::asPlotlyText(data_parsed2))) %>%
+  plotly::ggplotly(tooltip = "text")
+```
+
+We can see a girl of only 19 year old and with a really nice ranking and a 54-year old man (with a less nice ranking).
+
+```{r}
+myggplot(data_parsed2, aes(ranking, birth_date)) +
+  geom_point() +
+  geom_smooth(aes(color = is_male), lwd = 2)
+```
+
+## Conclusion
+
+It was interesting to analyze this dataset. It would have been interesting to know from which school each person come from to compare rankings of French medical schools. Maybe it would be possible to *join* the data with some other data and do it (I'll let someone else do it).
