@@ -1,0 +1,59 @@
+---
+title: "Shiny App for making Pixel Art Models"
+author: "Florian Privé"
+date: "November 16, 2017" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+```{r, echo=FALSE, fig.align='center', out.width='80%'}
+knitr::include_graphics("https://i.skyrock.net/8357/92298357/pics/3238779731_1_9_0mvpuhVx.png")
+```
+
+Last weekend, I discovered the pixel art. 
+The goal is to reproduce a pixelated drawing.
+**Anyone can do this** without any drawing skills because you just have to reproduce the pixels one by one (on a squared paper).
+Kids and big kids can quickly become addicted to this.
+
+## Example
+
+```{r, echo=FALSE, fig.align='center', out.width='30%'}
+knitr::include_graphics("https://i.pinimg.com/564x/91/af/46/91af46f50866bc7b95e72c4b3891dc52--man--iron-man.jpg")
+```
+
+For this pixelated ironman, you need only 3 colors (black, yellow and red).
+At the beginning I thought this would be really easy and quick.
+It took me approximately 15 minutes to reproduce this.
+Children could take more than 1 hour to reproduce this, so it's nice if you want to keep them busy.
+
+## Make your own pixel art models
+
+On the internet, there are lots of models. 
+There are also tutos on how to make models with Photoshop.
+Yet, I wanted to make an R package for making pixel art models, based on any pictures.
+The pipeline I came up with is the following:
+
+- read an image with package **magick**
+- downsize this image for processing
+- use K-means to project colors in a small set of colors
+- downsize the image and project colors
+- plot the pixels and add lines to separate them
+
+I think there may be a lot to improve but from what I currently know about images, it's the best I could come up with as a first shot.
+
+I made a package called **pixelart**, with an associated Shiny App.
+
+```r
+# Installation
+devtools::install_github("privefl/pixelart")
+
+# Run Shiny App
+pixelart::run_app()
+```
+
+```{r, echo=FALSE, fig.align='center', out.width='70%'}
+knitr::include_graphics("https://raw.githubusercontent.com/privefl/pixelart/master/webshot.png")
+```
+
