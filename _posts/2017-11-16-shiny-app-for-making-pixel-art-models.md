@@ -1,7 +1,7 @@
 ---
 title: "Shiny App for making Pixel Art Models"
 
-author: "Florian Privé"
+author: "Florian PrivÃ©"
 date: "November 16, 2017"
 layout: post
 ---
