@@ -1,7 +1,7 @@
 ---
 title: "Teaching an advanced R course"
 
-author: "Florian Privé"
+author: "Florian PrivÃ©"
 date: "March 29, 2018"
 layout: post
 ---
