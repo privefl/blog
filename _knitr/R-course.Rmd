@@ -64,7 +64,7 @@ I also introduced my students to [Slack](https://slack.com) so that we could com
 5. For the last chapter, we covered [how to make an R package](https://privefl.github.io/advr38book/packages.html). I showed them that it was really easy and fast, mainly thanks to packages {usethis} and {roxygen2}. We had time to cover the full documentation, testing, automatic checking of packages and even how to make a website of a package.
 
 6. Finally, the last session was a "bonus" session we could use either to spend more time on any topic or just to learn something fun like {Shiny}. Indeed, we could have spent at least two more sessions on the tidyverse and one on practicing about performance of R code. 
-Using a [Slack poll](https://simplepoll.rocks/), we agreed to [learn Shiny](https://privefl.github.io/advr38book/shiny.html). For this, I used [this nice and free Data Camp course](https://www.datacamp.com/courses/building-web-applications-in-r-with-shiny). 
+Using a [Slack poll](https://simplepoll.rocks/), we agreed to [learn Shiny](https://privefl.github.io/advr38book/shiny.html). For this, I used [this nice and free DataCamp course](https://www.datacamp.com/courses/building-web-applications-in-r-with-shiny). 
 
 ## Retrospective thoughts
 
