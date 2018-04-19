@@ -106,7 +106,7 @@ system.time({
 all.equal(rnum2, rnum)
 ```
 
-So, here we get a solution that is 4-5 times as fast because we restricted the source code a our special use case.
+So, here we get a solution that is 4-5 times as fast because we restricted the source code to our special use case.
 Still, this is not fast enough in my opinion.
 
 ## Second idea of improvement
@@ -223,7 +223,7 @@ system.time(
 all.equal(rnum3, rnum)
 ```
 
-This is so much faster, because for one point in the first matrix, you just check only a small subset of the points of the second matrix. This solution takes 0.5 sec for `N = 2e4` and 4.2 sec for `N = 2e5`. 
+This is so much faster, because for one point in the first matrix, you just check only a small subset of the points in the second matrix. This solution takes 0.5 sec for `N = 2e4` and 4.2 sec for `N = 2e5`. 
 
 **4 seconds instead of 30-40 min!**
 
@@ -231,4 +231,4 @@ Mission accomplished.
 
 ## Conclusion
 
-Knowing some maths and some algorithmics can be valuable if you are interested in performance.
+Knowing some maths and some algorithmics can be useful if you are interested in performance.

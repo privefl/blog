@@ -70,7 +70,7 @@ distHaversine</code></pre></div>
 </ol>
 <p>Knowing that latitude values are between -90° and 90°, you can show that the values of <code>a</code> are between 0 and 1. For these values, <code>dist(a)</code> is in an increasing function of <code>a</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">curve</span>(<span class="kw">atan2</span>(<span class="kw">sqrt</span>(x), <span class="kw">sqrt</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>x)), <span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">1</span>)</code></pre></div>
-<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-closest-points_files/figure-html/unnamed-chunk-21-1.png" /><!-- --></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-closest-points_files/figure-html/unnamed-chunk-4-1.png" /><!-- --></p>
 <p>So, in fact, to find the minimum distance, you just need to find the minimum <code>a</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># p1 is just one point and p2 is a two-column matrix of points</span>
 haversine2 &lt;-<span class="st"> </span><span class="cf">function</span>(p1, p2) {
@@ -97,7 +97,7 @@ grwl.latlon &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span cl
   })
 })</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.866   0.545   2.409</code></pre>
+##   1.852   0.559   2.408</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>({
   rnum2 &lt;-<span class="st"> </span><span class="kw">apply</span>(pixels.latlon, <span class="dv">1</span>, <span class="cf">function</span>(x) {
     a &lt;-<span class="st"> </span><span class="kw">haversine2</span>(x, grwl.latlon)
@@ -105,10 +105,10 @@ grwl.latlon &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span cl
   })
 })</code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.375   0.000   0.375</code></pre>
+##   0.380   0.001   0.383</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(rnum2, rnum)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<p>So, here we get a solution that is 4-5 times as fast because we restricted the source code a our special use case. Still, this is not fast enough in my opinion.</p>
+<p>So, here we get a solution that is 4-5 times as fast because we restricted the source code to our special use case. Still, this is not fast enough in my opinion.</p>
 </div>
 <div id="second-idea-of-improvement" class="section level2">
 <h2>Second idea of improvement</h2>
@@ -213,12 +213,12 @@ IntegerVector find_closest_point(<span class="at">const</span> NumericVector&amp
 ##   0.007   0.000   0.007</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(rnum3, rnum)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<p>This is so much faster, because for one point in the first matrix, you just check only a small subset of the points of the second matrix. This solution takes 0.5 sec for <code>N = 2e4</code> and 4.2 sec for <code>N = 2e5</code>.</p>
+<p>This is so much faster, because for one point in the first matrix, you just check only a small subset of the points in the second matrix. This solution takes 0.5 sec for <code>N = 2e4</code> and 4.2 sec for <code>N = 2e5</code>.</p>
 <p><strong>4 seconds instead of 30-40 min!</strong></p>
 <p>Mission accomplished.</p>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
-<p>Knowing some maths and some algorithmics can be valuable if you are interested in performance.</p>
+<p>Knowing some maths and some algorithmics can be useful if you are interested in performance.</p>
 </div>
 </section>
