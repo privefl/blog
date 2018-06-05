@@ -8,13 +8,13 @@ output:                    # DO NOT CHANGE
     highlight: github      # DO NOT CHANGE
 ---
 
-In this post, I will talk about parallelism in R. This post will likely be biased towards the solutions I use. For example, I never use `mcapply` nor `clusterApply`. I prefer to always use `foreach`. In this post, we will focus on **how to parallelize R code on your computer**.
+In this post, I talk about parallelism in R. This post is likely biased towards the solutions I use. For example, I never use `mcapply` nor `clusterApply`; I prefer to always use `foreach`. In this post, we will focus on **how to parallelize R code on your computer with package {foreach}**.
 
-I will use mainly silly examples, just to show one point at a time.
+In this post, I use mainly silly examples just to show one point at a time.
 
 ## Basics of foreach
 
-You can install the **foreach** package with `install.packages("foreach")`.
+You can install R package {foreach} with `install.packages("foreach")`.
 
 ```{r}
 library(foreach)
@@ -24,7 +24,7 @@ foreach(i = 1:3) %do% {
 }
 ```
 
-So, in the example above, you iterate on `i` and apply the expression `sqrt(i)`. `foreach` returns a list by default. A common mistake is to think that `foreach` is like a for-loop. Actually, **`foreach` is more like `lapply`**.
+In the example above, you iterate on `i` and apply the expression `sqrt(i)`. Function `foreach` returns a list by default. A common mistake is to think that `foreach` is like a for-loop. Actually, **`foreach` is more like `lapply`**.
 
 ```{r}
 lapply(1:3, function(i) {
@@ -32,7 +32,7 @@ lapply(1:3, function(i) {
 })
 ```
 
-Parameter `.combine` is very useful. 
+Parameter `.combine` can be very useful. Yet, now, I usually prefer to combine the results afterwards (see `do.call` below). 
 
 ```{r}
 foreach(i = 1:3, .combine = 'c') %do% {
@@ -54,6 +54,7 @@ do.call('c', res)
 You need to do at least two things:
 
 - replace `%do%` by `%dopar%`. Basically, always use `%dopar%` because you can use `registerDoSEQ()` is you really want to run the `foreach` sequentially.
+
 - register a parallel backend using one of the packages that begin with *do* (such as `doParallel`, `doMC`, `doMPI` and more). I will list only the two main parallel backends because there are too many of them.
 
 ### Using clusters
@@ -81,14 +82,14 @@ foreach(i = 1:3, .combine = 'c') %dopar% {
 parallel::stopCluster(cl)
 ```
 
-Forking just copy the R session at its current state. This is very fast because it copies objects only it they are modified. Moreover, you don't need to export variables nor packages because they are already in the session. However, this can't be used on Windows. This is why I use the *clusters* option in my packages. Also, I don't trust forking to always work.
+Forking just copy the R session in its current state. This is very fast because it copies objects only it they are modified. Moreover, you don't need to export variables nor packages because they are already in the session. However, **this can't be used on Windows**. This is why I use the *clusters* option in my packages. 
 
 
 ## Common problems/mistakes/questions
 
 ### Exporting variables and packages
 
-> object xxx not found or function xxx not found.
+> "object "xxx" not found" or "could not find function "xxx"".
 
 ```{r}
 # Some data and function
@@ -118,7 +119,7 @@ tryCatch(myFun(), error = function(e) print(e))
 parallel::stopCluster(cl)
 ```
 
-Hey, why doesn't this work anymore?
+Why doesn't this work anymore?
 `foreach` will export all the needed variables that are present in its environment (here, the environment of `myFun`) and `dfs` is not in this environment.
 Some will tell you to use option `.export` of `foreach` but I don't think it's good practice. You just have to pass `dfs` to `myFun`.
 
@@ -136,8 +137,8 @@ tryCatch(myFun2(dfs), error = function(e) print(e))
 parallel::stopCluster(cl)
 ```
 
-Hey, this still doesn't work. 
-You also need to load packages. You could use option `.packages` of `foreach` but you could simply add `dplyr::` before `count`. It will be clearer (like one does in packages).
+This still doesn't work. 
+You also need to load packages. You could use option `.packages` of `foreach` but you could simply add `dplyr::` before `count`. Moreover, it is clearer (like one does in packages).
 
 ```{r}
 myFun3 <- function(dfs) {
@@ -171,7 +172,7 @@ Iterating over multiple elements in R is bad for performance.
 Moreover, `foreach` is only combining results 100 by 100, which also slows computations.
 
 If there are too many elements to loop over, the best is to split the computation in *ncores* blocks and to perform some optimized sequential work on each block.
-In package **bigstatsr**, I use the following function to split indices in `nb` groups because I often need to iterate over hundreds of thousands of elements (columns).
+In package {bigstatsr}, I use the following function to split indices in `nb` groups because I often need to iterate over hundreds of thousands of elements (columns).
 
 ```{r}
 bigstatsr:::CutBySize
@@ -181,40 +182,38 @@ bigstatsr:::CutBySize(20, nb = 3)
 
 ### Filling something in parallel
 
-> Using foreach loop in r returning NA
+> Using foreach loop in R returning NA
 
 ```{r}
-mat <- matrix(0, 5, 8)
+mat <- matrix(nrow = 5, ncol = 8)
 registerDoSEQ()
 # Nested foreach loop
-tmp <- foreach(j = 1:8) %:%
-  foreach(i = 1:5) %dopar% {
-    mat[i, j] <- i + j
-  }
+tmp <- foreach(j = 1:8) %:% foreach(i = 1:5) %dopar% {
+  mat[i, j] <- i + j
+}
 mat
 ```
 
 
 ```{r}
 # Try in parallel
-mat2 <- matrix(0, 5, 8)
+mat2 <- matrix(nrow = 5, ncol = 8)
 cl <- parallel::makeCluster(2)
 doParallel::registerDoParallel(cl)
-tmp2 <- foreach(j = 1:8) %:%
-  foreach(i = 1:5) %dopar% {
-    mat2[i, j] <- i + j
-  }
+tmp2 <- foreach(j = 1:8) %:% foreach(i = 1:5) %dopar% {
+  mat2[i, j] <- i + j
+}
 parallel::stopCluster(cl)
 mat2
 ```
 
 There are two problems here:
 
-1. `mat` is filled in the sequential version but won't be in the parallel version. Why? This is because when using parallelism, `mat` is copied so that each core modifies a copy of the matrix, not the original one.
+1. `mat` is filled in the sequential version but won't be in the parallel version. This is because when using parallelism, `mat` is copied so that each core modifies a copy of the matrix, not the original one.
 
 2. `foreach` returns something (here a two-level list).
 
-To overcome this problem, you could use shared-memory. For example, with [my package **bigstatsr**](https://github.com/privefl/bigstatsr).
+To overcome this problem, you could use shared-memory. For example, with [my package {bigstatsr}](https://github.com/privefl/bigstatsr).
 
 ```{r}
 library(bigstatsr)
@@ -249,7 +248,7 @@ system.time(
 parallel::stopCluster(cl)
 ```
 
-Copying `mat` to both clusters takes time (and memory!).
+If using *clusters*, copying `mat` to both clusters takes time (and memory!).
 
 ```{r bigmat2}
 mat2 <- FBM(1e4, 1e4); mat2[] <- rnorm(length(mat2))
@@ -268,7 +267,7 @@ This is faster because it's using a matrix that is stored on disk (so shared bet
 
 ### Advanced parallelism: synchronization
 
-For example, you may need to write to the same data (maybe increment it). In this case, it is important to use some locks so that only one session writes to the data at the same time. For that, you could use package **flock**, which is really easy to use.
+For example, you may need to write to the same data (maybe increment it). In this case, it is important to use some locks so that only one session writes to the data at the same time. For that, you could use package {flock}, which is really easy to use.
 
 ```{r}
 mat <- FBM(1, 1, init = 0)
@@ -302,7 +301,7 @@ mat2[]
 
 So each process uses some lock to perform its incrementation so that the data can't be changed by some other process in the meantime.
 
-You may also need to use some message passing or some barriers. For that, you could learn to use MPI. For some basic use, I "reimplemented" this using only shared-memory matrices (FBMs). You can see [this function](https://github.com/privefl/bigstatsr/blob/master/R/randomSVD.R#L4-L91) is you're interested.
+Moreover, you may also need to use some message passing or some barriers. For that, you could learn to use MPI. For some basic use, I "reimplemented" this using only shared-memory matrices (FBMs). You can see [this function](https://github.com/privefl/bigstatsr/blob/master/R/randomSVD.R#L4-L91) is you're interested.
 
 ## Miscellenaous 
 
@@ -312,7 +311,7 @@ You may also need to use some message passing or some barriers. For that, you co
 
 - Don't try to parallelize huge matrix operations with loops. There are already (parallel) optimized linear algebra libraries that exist and which will be much faster. For example, you could use [Microsoft R Open](https://mran.microsoft.com/open/).
 
-- Some will tell you to use `parallel::detectCores() - 1` cores. 
+- Some will tell you to use `parallel::detectCores() - 1` cores. I use `bigstatsr::nb_cores()`.
 
 
 ## Conclusion
