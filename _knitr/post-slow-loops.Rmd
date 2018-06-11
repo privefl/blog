@@ -1,5 +1,5 @@
 ---
-title: "Why loops are slow in R?"
+title: "Why loops are slow in R"
 author: "Florian Privé"
 date: "June 11, 2018" # DO NOT USE Sys.Date()
 output:                    # DO NOT CHANGE
@@ -15,7 +15,7 @@ options(width = 95)
 ```
 
 
-## Don't grow obejcts
+## Don't grow objects
 
 Let us generate a matrix of uniform values (max changing for every column).
 
@@ -29,7 +29,7 @@ gen_grow <- function(n = 1e3, max = 1:500) {
 }
 ```
 
-```{r, cache = TRUE}
+```{r}
 set.seed(1)
 system.time(mat1 <- gen_grow(max = 1:500))
 system.time(mat2 <- gen_grow(max = 1:2000))
@@ -55,14 +55,14 @@ identical(mat4, mat2)
 knitr::include_graphics("../images/bullshit.jpg")
 ```
 
-Don't get it wrong, `sapply()` or `lapply()` is nothing but a loop internally, so **`sapply` shouldn't be any faster than a loop**.
-Here, the problem is not with the loop, but what we do inside this loop. Indeed, in `gen_grow()`, at each iteration of the loop, we reallocate a new matrix with one more column, which takes time.
+Don't get this wrong, `sapply()` or `lapply()` is nothing but a loop internally, so **`sapply()` shouldn't be any faster than a loop**.
+Here, the problem is not with the loop, but what we do inside this loop. Indeed, in `gen_grow()`, at each iteration of the loop, we reallocate a *new* matrix with one more column, which takes time.
 
 ```{r, out.width="45%", echo=FALSE}
 knitr::include_graphics("../images/stairs.jpg")
 ```
 
-Imagine you want to climb all those stairs, but you have to climb only stair 1, go to the bottom then climb the first 2 stairs, go to the botoom then climb the first three, and so on until you reach the top. This takes way more time than just climbing all stairs at once. This is basically what happens in function `gen_grow()` but instead of climbing more stairs, it allocates more memory, which also takes time.
+Imagine you want to climb all those stairs, but you have to climb only stair 1, go to the bottom then climb the first 2 stairs, go to the bottom then climb the first three, and so on until you reach the top. This takes way more time than just climbing all stairs at once. This is basically what happens in function `gen_grow()` but instead of climbing more stairs, it allocates more memory, which also takes time.
 
 You have at least two solutions to this problem. The first solution is to pre-allocate the whole result once (if you know its size in advance) and just fill it:
 ```{r}
@@ -83,7 +83,7 @@ system.time(mat6 <- gen_prealloc(max = 1:2000))
 identical(mat6, mat2)
 ```
 
-Another solution that can be really useful if you don't know the size of the result is to store the results in a list. A list, as opposed to a vector or a matrice, stores its elements in different places in memory (the elements don't have to be contiguously stored in memory) so that you can add one element to the list without copying the rest of the list.
+Another solution that can be really useful if you don't know the size of the result is to store the results in a list. A list, as opposed to a vector or a matrix, stores its elements in different places in memory (the elements don't have to be contiguously stored in memory) so that you can add one element to the list without copying the rest of the list.
 
 ```{r}
 gen_list <- function(n = 1e3, max = 1:500) {
@@ -111,7 +111,7 @@ knitr::include_graphics("../images/data-structures.jpg")
 
 I call *vectorized* a function that takes vectors as arguments and operate on each element of these vectors in another (compiled) language (such as C++ and Fortran). 
 
-So, let me repeat myself: **`sapply()` is not a vectorized function**. I don't say that to never use `lapply()` instead of a for-loop. Indeed, it can be more concise and clear to use `lapply()`, but don't expect miracles with respect to performance. [AT THE END]
+So, let me repeat myself: **`sapply()` is not a vectorized function**.
 
 Let's go back to vectorization, why is it so important in R? 
 As an example, let's compute the sum of two vectors. 
@@ -134,10 +134,40 @@ add_vectorized <- `+`
 
 ```{r}
 N <- 1e5; x <- runif(N); y <- rnorm(N)
+
+compiler::enableJIT(0)  ## disable just-in-time compilation
 microbenchmark::microbenchmark(
-  add_loop_prealloc(x, y),
-  add_sapply(x, y),
-  add_vectorized(x, y)
+        LOOP = add_loop_prealloc(x, y),
+      SAPPLY = add_sapply(x, y),
+  VECTORIZED = add_vectorized(x, y)
 )
 ```
 
+```{r}
+compiler::enableJIT(3)  ## default
+microbenchmark::microbenchmark(
+        LOOP = add_loop_prealloc(x, y),
+      SAPPLY = add_sapply(x, y),
+  VECTORIZED = add_vectorized(x, y)
+)
+```
+
+Here, the vectorized function is much faster than the two others and the for-loop approach is faster than the `sapply` equivalent when just-in-time compilation is enabled.
+
+As an interpreted language, for each iteration `res[i] <- x[i] + y[i]`, R has to ask:
+
+1. what is the type of `x[i]` and `y[i]`?
+
+2. can I add these two types? what is the type of `x[i] + y[i]` then?
+
+3. can I store this result in `res` or do I need to convert it?
+
+These questions must be answered for each iteration, which takes time. On the contrary, for vectorized functions, these questions must be answered only once, which saves a lot of time. Read more with [Noam Ross's blog post on vectorization](http://www.noamross.net/blog/2014/4/16/vectorization-in-r--why.html).
+
+## Conclusion
+
+- In this post, I don't say that you shouldn't use `lapply()` instead of a for-loop. Indeed, it can be more concise and clearer to use `lapply()`, but don't expect miracles with respect to performance. You should also take a look at package {purrr} that provides shortcuts, consistency and some functions to [iterate over rows of a data frame](https://www.rstudio.com/resources/webinars/thinking-inside-the-box-you-can-do-that-inside-a-data-frame/).
+
+- Loops are slower in R than in C++ because R is an interpreted language (not compiled), even if now there is just-in-time (JIT) compilation in R (>= 3.4) that makes R loops faster (yet, still not as fast). Then, R loops are not that bad if you don't use too many iterations (let's say not more than 100,000 iterations).
+
+- Beware what you're doing in the loops because they can be super slow. Use vectorized operations if you can (search for them in available packages such as {matrixStats}). If you can't, write your own vectorized functions with {Rcpp}. I have an introduction to {Rcpp} [there](https://privefl.github.io/R-presentation/Rcpp.html).
