@@ -1,0 +1,143 @@
+---
+title: "Why loops are slow in R?"
+author: "Florian Privé"
+date: "June 11, 2018" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+In this post, I talk about loops in R, why they can be slow and when it is okay to use them.
+
+```{r setup, include=FALSE}
+options(width = 95)
+```
+
+
+## Don't grow obejcts
+
+Let us generate a matrix of uniform values (max changing for every column).
+
+```{r}
+gen_grow <- function(n = 1e3, max = 1:500) {
+  mat <- NULL
+  for (m in max) {
+    mat <- cbind(mat, runif(n, max = m))
+  }
+  mat
+}
+```
+
+```{r, cache = TRUE}
+set.seed(1)
+system.time(mat1 <- gen_grow(max = 1:500))
+system.time(mat2 <- gen_grow(max = 1:2000))
+```
+
+```{r}
+gen_sapply <- function(n = 1e3, max = 1:500) {
+  sapply(max, function(m) runif(n, max = m))
+}
+```
+
+```{r}
+set.seed(1)
+system.time(mat3 <- gen_sapply(max = 1:500))
+identical(mat3, mat1)
+system.time(mat4 <- gen_sapply(max = 1:2000))
+identical(mat4, mat2)
+```
+
+> Wow, `sapply()` is so much faster than loops!
+
+```{r, out.width="45%", echo=FALSE}
+knitr::include_graphics("../images/bullshit.jpg")
+```
+
+Don't get it wrong, `sapply()` or `lapply()` is nothing but a loop internally, so **`sapply` shouldn't be any faster than a loop**.
+Here, the problem is not with the loop, but what we do inside this loop. Indeed, in `gen_grow()`, at each iteration of the loop, we reallocate a new matrix with one more column, which takes time.
+
+```{r, out.width="45%", echo=FALSE}
+knitr::include_graphics("../images/stairs.jpg")
+```
+
+Imagine you want to climb all those stairs, but you have to climb only stair 1, go to the bottom then climb the first 2 stairs, go to the botoom then climb the first three, and so on until you reach the top. This takes way more time than just climbing all stairs at once. This is basically what happens in function `gen_grow()` but instead of climbing more stairs, it allocates more memory, which also takes time.
+
+You have at least two solutions to this problem. The first solution is to pre-allocate the whole result once (if you know its size in advance) and just fill it:
+```{r}
+gen_prealloc <- function(n = 1e3, max = 1:500) {
+  mat <- matrix(0, n, length(max))
+  for (i in seq_along(max)) {
+    mat[, i] <- runif(n, max = max[i])
+  }
+  mat
+}
+```
+
+```{r}
+set.seed(1)
+system.time(mat5 <- gen_prealloc(max = 1:500))
+identical(mat5, mat1)
+system.time(mat6 <- gen_prealloc(max = 1:2000))
+identical(mat6, mat2)
+```
+
+Another solution that can be really useful if you don't know the size of the result is to store the results in a list. A list, as opposed to a vector or a matrice, stores its elements in different places in memory (the elements don't have to be contiguously stored in memory) so that you can add one element to the list without copying the rest of the list.
+
+```{r}
+gen_list <- function(n = 1e3, max = 1:500) {
+  l <- list()
+  for (i in seq_along(max)) {
+    l[[i]] <- runif(n, max = max[i])
+  }
+  do.call("cbind", l)
+}
+```
+
+```{r}
+set.seed(1)
+system.time(mat7 <- gen_list(max = 1:500))
+identical(mat7, mat1)
+system.time(mat8 <- gen_list(max = 1:2000))
+identical(mat8, mat2)
+```
+
+```{r, out.width="55%", echo=FALSE}
+knitr::include_graphics("../images/data-structures.jpg")
+```
+
+## Vectorization, why?
+
+I call *vectorized* a function that takes vectors as arguments and operate on each element of these vectors in another (compiled) language (such as C++ and Fortran). 
+
+So, let me repeat myself: **`sapply()` is not a vectorized function**. I don't say that to never use `lapply()` instead of a for-loop. Indeed, it can be more concise and clear to use `lapply()`, but don't expect miracles with respect to performance. [AT THE END]
+
+Let's go back to vectorization, why is it so important in R? 
+As an example, let's compute the sum of two vectors. 
+
+```{r}
+add_loop_prealloc <- function(x, y) {
+  res <- double(length(x))
+  for (i in seq_along(x)) {
+    res[i] <- x[i] + y[i]
+  }
+  res
+}
+
+add_sapply <- function(x, y) {
+  sapply(seq_along(x), function(i) x[i] + y[i])
+}
+
+add_vectorized <- `+`
+```
+
+```{r}
+N <- 1e5; x <- runif(N); y <- rnorm(N)
+microbenchmark::microbenchmark(
+  add_loop_prealloc(x, y),
+  add_sapply(x, y),
+  add_vectorized(x, y)
+)
+```
+
