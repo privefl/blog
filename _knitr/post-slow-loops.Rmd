@@ -152,7 +152,7 @@ microbenchmark::microbenchmark(
 )
 ```
 
-Here, the vectorized function is much faster than the two others and the for-loop approach is faster than the `sapply` equivalent when just-in-time compilation is enabled. (Edit: for some unknown reason, this result is true only in interactive mode? Try the code yourself!)
+Here, the vectorized function is much faster than the two others and the for-loop approach is faster than the `sapply` equivalent when just-in-time compilation is enabled. (Edit: for some unknown reason, this result is not true anymore when I render this blog post. Try the code yourself!)
 
 As an interpreted language, for each iteration `res[i] <- x[i] + y[i]`, R has to ask:
 
