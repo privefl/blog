@@ -1,7 +1,7 @@
 ---
 title: "Why loops are slow in R"
 
-author: "Florian Privé"
+author: "Florian PrivÃ©"
 date: "June 11, 2018"
 layout: post
 ---
