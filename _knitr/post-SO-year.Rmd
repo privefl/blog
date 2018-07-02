@@ -1,0 +1,123 @@
+---
+title: "One year as a subscriber to Stack Overflow"
+author: "Florian Privé"
+date: "July 2, 2018"
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+In this post, I follow up on a [previous post](https://privefl.github.io/blog/one-month-as-a-procrastinator-on-stack-overflow/) describing how last year in July, I spent one month mostly procrastinating on Stack Overflow (SO). We're already in July so it's time to get back to one year of activity on Stack Overflow. 
+
+Am I still as much active as before? **What is my strategy for answering questions on SO?**
+
+## My activity on Stack Overflow
+
+Again, we'll use David Robinson's package {stackr} to get data from Stack Overflow API in R.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.align = "center", out.width = "80%", fig.asp = 0.75, fig.width = 8)
+```
+
+```{r}
+# devtools::install_github("dgrtwo/stackr")
+suppressMessages({
+  library(stackr)
+  library(tidyverse)
+  library(lubridate)
+})
+```
+
+
+### Evolution of my SO reputation
+
+```{r}
+myID <- "6103040"
+
+myRep <- stack_users(myID, "reputation-history", num_pages = 40,
+                     fromdate = today() - years(1))
+
+square <- function(x) x^2
+
+myRep %>%
+  arrange(creation_date) %>%
+  ggplot(aes(creation_date, cumsum(reputation_change))) +
+  geom_point() +
+  labs(x = "Date", y = "Reputation (squared transformed)") +
+  coord_trans(y = scales::trans_new("square", function(x) x^2, "sqrt")) + 
+  ggtitle("Evolution of my SO reputation over the last year") + 
+  bigstatsr::theme_bigstatsr()
+```
+
+So, it seems that my activity is slowing gently (my reputation is proportional to the square root of time). Yet, it is still increasing steadily; so what is my strategy for answering questions on SO?
+
+### Analyzing my answers
+
+You'll have to wait for the answer to what is my strategy for answering questions on SO. For a hint, let's analyze my answers and tags I'm involved in.
+
+```{r}
+(myAnswers <- stack_users(myID, "answers", num_pages = 30,
+                          fromdate = today() - years(1)) %>%
+    select(-starts_with("owner")) %>%
+    arrange(desc(score)) %>%
+    as_tibble())
+```
+
+So it seems I've answered `r nrow(myAnswers)` questions over the past year. This time, my answers with the greatest scores were mostly accepted. 
+
+The first one is just translating some R code in Rcpp. The two other ones are **dplyr** questions.
+
+```{r}
+myAnswers %>% 
+  group_by(score) %>%
+  summarise(
+    N = n(),
+    acceptance_ratio = mean(is_accepted)
+  )
+mean(myAnswers$score)
+```
+
+It seems that these days, it is harder to get answers that are highly upvoted. 
+
+
+### Tags I'm involved in
+
+If we don't count my first month of activity:
+
+```{r}
+stack_users(myID, "tags", num_pages = 40,
+            fromdate = today() - months(11)) %>%
+  select(name, count) %>%
+  DT::datatable() 
+```
+
+<br/>
+
+- I'm obviously answering only R questions
+
+- The tags I'm mostly answering questions from are "performance", "rcpp", "parallel-processing", "foreach", "r-bigmemory", "vectorization". 
+
+
+### Performance
+
+As you can see, all these tags are about performance of code.
+I really enjoy performance problems (get the same result but much faster).
+
+I can spend hours on a question about performance and am sometimes rewarded with a solution that is 3 order of magnitude faster (see e.g. [this other post](https://privefl.github.io/blog/performance-when-algorithmics-meets-mathematics/)).
+
+I hope I could share my knowledge about performance through a tutorial in Toulouse next year.
+
+## Conclusion and answer
+
+So, the question was "What is my strategy for answering questions on SO?". And the answer is.. in the title: I am a subscriber.
+
+I subscribe to tags on Stack Overflow. It has many benefits:
+
+- you don't have to [rush to answer](https://meta.stackexchange.com/questions/9731/fastest-gun-in-the-west-problem) because questions you receive by mail are 30min-old unanswered ones, so the probability that someone will answer at the same time as you is low.
+
+- you can focus and what you're good at, what you're interested in, or just what you want to learn. For example, I subscribed to the very new tag "r-future" (for the R package {future}) because I'm interested in this package, even if I don't know how to use it yet. I had the chance to meet with its author, Henrik Bengtsson, at eRum2018 and he actually already knew me through parallel questions on SO :D.
+
+However, some tags (like "performance" or "foreach") are relevant for many programming languages so that you would be flooded with irrelevant questions if subscribing directly to these tags. A simple solution to this problem is to subscribe to a feed of a combination of tags, like [https://stackoverflow.com/feeds/tag?tagnames=r+and+foreach&sort=newest]. I use [this website](https://blogtrottr.com/) to subscribe to feeds.
+
+I will continue answering questions on SO, so see you there!
