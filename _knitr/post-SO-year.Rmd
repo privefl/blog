@@ -110,7 +110,7 @@ I subscribe to tags on Stack Overflow. It has many benefits:
 
 - you can focus and what you're good at, what you're interested in, or just what you want to learn. For example, I subscribed to the very new tag "r-future" (for the R package {future}) because I'm interested in this package, even if I don't know how to use it yet. I had the chance to meet with its author, Henrik Bengtsson, at eRum2018 and he actually already knew me through parallel questions on SO :D.
 
-However, some tags (like "performance" or "foreach") are relevant to many programming languages so that you would be flooded with irrelevant questions if subscribing directly to these tags. A simple solution to this problem is to subscribe to a feed of a combination of tags, like [https://stackoverflow.com/feeds/tag?tagnames=r+and+foreach&sort=newest]. I use [this website](https://blogtrottr.com/) to subscribe to feeds.
+However, some tags (like "performance" or "foreach") are relevant to many programming languages so that you would be flooded with irrelevant questions if subscribing directly to these tags. A simple solution to this problem is to subscribe to a feed of a combination of tags, like https://stackoverflow.com/feeds/tag?tagnames=r+and+foreach&sort=newest. I use [this website](https://blogtrottr.com/) to subscribe to feeds.
 
 I will continue answering questions on SO, so see you there!
 
