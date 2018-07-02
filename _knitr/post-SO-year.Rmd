@@ -42,38 +42,16 @@ myRep %>%
   arrange(creation_date) %>%
   ggplot(aes(creation_date, cumsum(reputation_change))) +
   geom_point() +
-  labs(x = "Date", y = "Reputation (squared transformed)") +
-  ggtitle("Evolution of my SO reputation over the last year") + 
+  labs(x = "Date", y = "Reputation (squared transformed)",
+       title = "Evolution of my SO reputation over the last year") + 
   bigstatsr::theme_bigstatsr()
 ```
 
 So, it seems that my activity is slowing gently (my reputation is almost proportional to the square root of time). Yet, it is still increasing steadily; so what is my strategy for answering questions on SO?
 
-### Analyzing my answers
-
-You'll have to wait for the answer to what is my strategy for answering questions on SO. For a hint, let's analyze my answers and tags I'm involved in.
-
-```{r}
-myAnswers <- stack_users(myID, "answers", num_pages = 30,
-                         fromdate = today() - years(1))
-```
-
-I've answered `r nrow(myAnswers)` questions over the past year.
-
-```{r}
-myAnswers %>% 
-  group_by(score) %>%
-  summarise(
-    N = n(),
-    acceptance_ratio = mean(is_accepted)
-  )
-mean(myAnswers$score)
-```
-
-It seems that these days, it is harder to get answers that are highly upvoted. 
-
-
 ### Tags I'm involved in
+
+You'll have to wait for the answer to what is my strategy for answering questions on SO. For a hint, let's analyze the tags I'm involved in.
 
 If we don't count my first month of activity:
 
@@ -81,15 +59,10 @@ If we don't count my first month of activity:
 stack_users(myID, "tags", num_pages = 40,
             fromdate = today() - months(11)) %>%
   select(name, count) %>%
-  DT::datatable() 
+  as_tibble()
 ```
 
-<br/>
-
-- I'm obviously answering only R questions
-
-- The tags I'm mostly answering questions from are "performance", "rcpp", "parallel-processing", "foreach", "r-bigmemory" and "vectorization". 
-
+I'm obviously answering only R questions. The tags I'm mostly answering questions from are "performance", "rcpp", "parallel-processing", "foreach", "r-bigmemory" and "vectorization". 
 
 ### Performance
 
@@ -116,4 +89,4 @@ I will continue answering questions on SO, so see you there!
 
 ***
 
-PS: I'm not 100% sure you would get only unanswered questions with this technique.
+PS: I'm not sure you would get only unanswered questions with this technique.
