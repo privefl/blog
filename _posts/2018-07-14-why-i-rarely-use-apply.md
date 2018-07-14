@@ -1,7 +1,7 @@
 ---
 title: "Why I rarely use apply"
 
-author: "Florian Privé"
+author: "Florian PrivÃ©"
 date: "July 14, 2018"
 layout: post
 ---
