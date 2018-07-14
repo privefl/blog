@@ -91,7 +91,7 @@ apply2_sp <- function(X, FUN) {
 }
 
 system.time(res7 <- apply2_sp(X.sp, sum) / nrow(X.sp))
-stopifnot(isTRUE(all.equal(res6, res5)))
+stopifnot(isTRUE(all.equal(res7, res5)))
 ```
 
 

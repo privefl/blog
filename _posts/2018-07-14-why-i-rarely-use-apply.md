@@ -16,19 +16,19 @@ layout: post
 X &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(N <span class="op">*</span><span class="st"> </span>M), N)
 <span class="kw">system.time</span>(res1 &lt;-<span class="st"> </span><span class="kw">apply</span>(X, <span class="dv">2</span>, mean))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.69    0.11    0.80</code></pre>
+##    0.73    0.05    0.78</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(res2 &lt;-<span class="st"> </span><span class="kw">colMeans</span>(X))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.07    0.00    0.07</code></pre>
+##    0.05    0.00    0.05</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">stopifnot</span>(<span class="kw">isTRUE</span>(<span class="kw">all.equal</span>(res2, res1)))</code></pre></div>
 <p>“Yeah, there are <code>colSums</code> and <code>colMeans</code>, but what about computing standard deviations?”</p>
 <p>There are lots of <code>apply</code>-like functions in <a href="https://cran.r-project.org/package=matrixStats">package {matrixStats}</a>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(res3 &lt;-<span class="st"> </span><span class="kw">apply</span>(X, <span class="dv">2</span>, sd))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.90    0.07    0.97</code></pre>
+##    0.96    0.01    0.97</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(res4 &lt;-<span class="st"> </span>matrixStats<span class="op">::</span><span class="kw">colSds</span>(X))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.22    0.00    0.22</code></pre>
+##     0.2     0.0     0.2</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">stopifnot</span>(<span class="kw">isTRUE</span>(<span class="kw">all.equal</span>(res4, res3)))</code></pre></div>
 </div>
 <div id="with-data-frames" class="section level2">
@@ -71,10 +71,10 @@ X.sp &lt;-<span class="st"> </span><span class="kw">rsparsematrix</span>(N, M, <
 ## X.sp is converted to a dense matrix when using `apply`
 <span class="kw">system.time</span>(res5 &lt;-<span class="st"> </span><span class="kw">apply</span>(X.sp, <span class="dv">2</span>, mean))  </code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.89    0.41    1.30</code></pre>
+##    0.78    0.46    1.25</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(res6 &lt;-<span class="st"> </span>Matrix<span class="op">::</span><span class="kw">colMeans</span>(X.sp))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##       0       0       0</code></pre>
+##    0.01    0.00    0.02</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">stopifnot</span>(<span class="kw">isTRUE</span>(<span class="kw">all.equal</span>(res6, res5)))</code></pre></div>
 <p>You could implement your own <code>apply</code>-like function for sparse matrices by seeing a sparse matrix as a data frame with 3 columns (<code>i</code> and <code>j</code> storing positions of non-null elements, and <code>x</code> storing values of these elements). Then, you could use a <code>group_by</code>-<code>summarize</code> approach.</p>
 <p>For instance, for the previous example, you can do this in base R:</p>
@@ -88,8 +88,8 @@ X.sp &lt;-<span class="st"> </span><span class="kw">rsparsematrix</span>(N, M, <
 
 <span class="kw">system.time</span>(res7 &lt;-<span class="st"> </span><span class="kw">apply2_sp</span>(X.sp, sum) <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(X.sp))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.04    0.00    0.03</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">stopifnot</span>(<span class="kw">isTRUE</span>(<span class="kw">all.equal</span>(res6, res5)))</code></pre></div>
+##    0.03    0.00    0.03</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">stopifnot</span>(<span class="kw">isTRUE</span>(<span class="kw">all.equal</span>(res7, res5)))</code></pre></div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
