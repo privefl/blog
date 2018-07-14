@@ -1,0 +1,100 @@
+---
+title: "Why I rarely use apply"
+author: "Florian Privé"
+date: "July 14, 2018" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+In this short post, I talk about why I'm moving away from using function `apply`.
+
+```{r setup, include=FALSE}
+options(width = 95)
+```
+
+## With matrices
+
+It's okay to use `apply` with a dense matrix, although you can often use an equivalent that is faster.
+
+```{r}
+N <- M <- 8000
+X <- matrix(rnorm(N * M), N)
+system.time(res1 <- apply(X, 2, mean))
+system.time(res2 <- colMeans(X))
+stopifnot(isTRUE(all.equal(res2, res1)))
+```
+
+"Yeah, there are `colSums` and `colMeans`, but what about computing standard deviations?"
+
+There are lots of `apply`-like functions in [package {matrixStats}](https://cran.r-project.org/package=matrixStats).
+
+```{r}
+system.time(res3 <- apply(X, 2, sd))
+system.time(res4 <- matrixStats::colSds(X))
+stopifnot(isTRUE(all.equal(res4, res3)))
+```
+
+## With data frames
+
+```{r}
+head(iris)
+apply(head(iris), 2, identity)
+```
+
+```{r, echo=FALSE}
+knitr::include_graphics("../images/as-matrix.jpg")
+```
+
+A DATA FRAME IS NOT A MATRIX (it's a list).
+
+The first thing that `apply` does is converting the object to a matrix, which consumes memory and in the previous example transforms all data as strings (because a matrix can have only one type).
+
+What can you use as a replacement of `apply` with a data frame? 
+
+- If you want to operate on all columns, since a data frame is just a list, you can use `sapply` instead (or `map*` if you are a purrrist).
+
+    ```{r}
+    sapply(iris, typeof)
+    ```
+
+- If you want to operate on all rows, I recommend you to watch [this webinar](https://www.rstudio.com/resources/webinars/thinking-inside-the-box-you-can-do-that-inside-a-data-frame/).
+
+## With sparse matrices
+
+The memory problem is even more important when using `apply` with sparse matrices, which makes using `apply` very slow for such data.
+
+```{r}
+library(Matrix)
+
+X.sp <- rsparsematrix(N, M, density = 0.01)
+
+## X.sp is converted to a dense matrix when using `apply`
+system.time(res5 <- apply(X.sp, 2, mean))  
+
+system.time(res6 <- Matrix::colMeans(X.sp))
+stopifnot(isTRUE(all.equal(res6, res5)))
+```
+
+You could implement your own `apply`-like function for sparse matrices by seeing a sparse matrix as a data frame with 3 columns (`i` and `j` storing positions of non-null elements, and `x` storing values of these elements). Then, you could use a `group_by`-`summarize` approach.
+
+For instance, for the previous example, you can do this in base R:
+
+```{r}
+apply2_sp <- function(X, FUN) {
+  res <- numeric(ncol(X))
+  X2 <- as(X, "dgTMatrix")
+  tmp <- tapply(X2@x, X2@j, FUN)
+  res[as.integer(names(tmp)) + 1] <- tmp
+  res
+}
+
+system.time(res7 <- apply2_sp(X.sp, sum) / nrow(X.sp))
+stopifnot(isTRUE(all.equal(res6, res5)))
+```
+
+
+## Conclusion
+
+Using `apply` with a dense matrix is fine, but try to avoid it if you have a data frame or a sparse matrix.
