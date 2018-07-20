@@ -1,0 +1,94 @@
+---
+title: "Whether to use a data frame in R?"
+author: "Florian Privé"
+date: "July 20, 2018" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+```{r setup, include=FALSE}
+options(width = 110)
+```
+
+
+In this post, I try to show you in which situations using a data frame is appropriate, and in which it's not.
+
+Learn more with the [Advanced R book](https://adv-r.hadley.nz/).
+
+## What is a data frame?
+
+A data frame is just a list of vectors of the same length, each vector being a column.
+
+This may convince you:
+
+```{r}
+str(iris)
+is.list(iris)
+length(iris)
+sapply(iris, typeof)
+sapply(iris, length)
+```
+
+## What is a list?
+
+A list is just a vector of references to objects in memory.
+
+```{r}
+x <- 1:1e6
+pryr::object_size(x)
+y <- list(x, x, x)
+pryr::object_size(y)
+address <- data.table::address
+address(x)
+sapply(y, address)
+```
+
+So, basically, here `y` is a vector of 3 references, each pointing to the same object `x` in memory. This is very efficient because there is no need to copy `x` 3 times when creating `y`.
+
+## Using package {dplyr}
+
+Using {dplyr} operations such as `mutate` or `select` is very efficient.
+
+- `select`:
+
+    ```{r, message=FALSE}
+    library(dplyr)
+    mydf <- iris
+    mydf2 <- select(mydf, -Species)
+    sapply(mydf, address)
+    sapply(mydf2, address)
+    ```
+    
+    So, when you use `select`, you get a new object. This object is a new data frame (a new list). Yet, remember that a list is nothing but a vector of references. So, this is extremely efficient because it creates only a new vector of 4 references pointing to objects already in memory.
+    
+- `mutate`:
+
+    ```{r, warning=FALSE}
+    mydf3 <- mutate(iris, Species = as.character(Species))
+    sapply(mydf, address)
+    sapply(mydf3, address)
+    ```
+    
+    This is the same when using `mutate`. You get a new object, yet you modified the 5-th variable only. 
+    So, the first 4 variables don't have to be copied, your new data frame (list) can just point to the same 4 vectors in memory. R only creates a new vector of character and points to it in the new object.
+
+So, adding/removing/modifying one variable of a data frame is efficient because R doesn't have to copy the other variables. 
+
+## What about modifying one row of a data frame?
+
+If you modify the first row of a data frame, then you modify the first element of each variable. If there are multiple references to these vectors, R would decide to copy them all, getting you a full copy of the data frame.
+
+```{r}
+mydf4 <- mydf3
+sapply(mydf3, address)
+sapply(mydf4, address)
+mydf4[1, ] <- mydf3[1, ]
+sapply(mydf4, address)
+```
+
+## Conclusion
+
+It is appropriate to use data frames when you want to operate on variables, but not when you want to operate on rows. If you still want or need to do so, I recommend you to watch [this webinar](https://www.rstudio.com/resources/webinars/thinking-inside-the-box-you-can-do-that-inside-a-data-frame/).
+
