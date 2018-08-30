@@ -1,0 +1,141 @@
+---
+title: "Fast R functions to get first principal components"
+author: "Florian Privé"
+date: "August 30, 2018" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+In this post, I compare different approaches to get first principal components of large matrices in R.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.align = "center", out.width = "70%", dev = "svg")
+options(width = 95)
+```
+
+## Comparison
+
+```{r, message=FALSE}
+library(bigstatsr)
+library(tidyverse)
+```
+
+### Data
+
+```{r}
+# Create two matrices, one with some structure, one without
+n <- 20e3
+seq_m <- c(1e3, 3e3, 10e3)
+sizes <- seq_along(seq_m)
+X <- E <- list()
+for (i in sizes) {
+  m <- seq_m[i]
+  U <- matrix(0, n, 10); U[] <- rnorm(length(U))
+  V <- matrix(0, m, 10); V[] <- rnorm(length(V))
+  E[[i]] <- matrix(rnorm(n * m), n, m)
+  X[[i]] <- tcrossprod(U, V) + E[[i]]
+}
+```
+
+I use matrices of different sizes. Some are structured with 10 hidden components, and some with only random data.
+
+### Optimized math library
+
+I linked my R installation with OpenBLAS, an optimized parallel matrix library.
+
+```{r}
+(NCORES <- RhpcBLASctl::get_num_cores())
+RhpcBLASctl::blas_set_num_threads(NCORES)
+```
+
+### Compared methods
+
+```{r}
+models <- tribble(
+  ~method,                ~fun,                      ~params,
+  "bigstatsr - 1 core",   bigstatsr::big_randomSVD,  list(k = 10),
+  "bigstatsr - 6 cores",  bigstatsr::big_randomSVD,  list(k = 10, ncores = NCORES),
+  "Rspectra",             RSpectra::svds,            list(k = 10),
+  "irlba",                irlba::irlba,              list(nv = 10, nu = 10),
+  "svd",                  svd::propack.svd,          list(neig = 10),
+  "rsvd",                 rsvd::rsvd,                list(k = 10)
+) %>%
+  mutate(size = list(sizes), structured = list(c(TRUE, FALSE))) %>%
+  unnest(size, .drop = FALSE) %>%
+  unnest(structured, .drop = FALSE) %>%
+  mutate(user_time = NA, real_time = NA, pcs = list(NA))
+```
+
+### Computing
+
+```{r}
+# Filling this data frame with times and PC scores for each method and dataset
+for (i in rows_along(models)) {
+
+  mat <- `if`(models$structured[[i]], X, E)[[models$size[[i]]]]
+
+  time <- system.time({
+    if (grepl("bigstatsr", models$method[[i]])) mat <- as_FBM(mat)
+    res <- do.call(models$fun[[i]], args = c(list(mat), models$params[[i]]))
+  })
+
+  models[["user_time"]][[i]] <- time[1]
+  models[["real_time"]][[i]] <- time[3]
+  models[["pcs"]][[i]]  <- res
+}
+
+models <- mutate(models, size = seq_m[size])
+```
+
+### Timings
+
+```{r, fig.asp=9/7, fig.width=7.5}
+models %>%
+  ggplot(aes(size / 1000, real_time, color = method)) +
+  theme_bigstatsr() +
+  geom_point(cex = 6) +
+  geom_line(aes(linetype = method), lwd = 2) +
+  facet_grid(structured ~ ., scales = "free") +
+  theme(legend.position = c(0.25, 0.87),
+        legend.key.width = unit(6, "line")) +
+  labs(x = sprintf("ncol (x1000) (nrow = %d)", n), y = "Time (in seconds)",
+       color = "Methods:", linetype = "Methods:")
+
+models %>%
+  filter(size == max(seq_m)) %>%
+  select(method, structured, user_time, real_time)
+```
+
+### Errors
+
+```{r}
+true1 <- svd(X[[1]], nu = 10, nv = 10)
+true2 <- svd(E[[1]], nu = 10, nv = 10)
+
+bdiff <- function(x, y) {
+  if (ncol(x) < ncol(y)) return(Inf)
+  s = sign(x[1, ] / y[1, ])
+  max(apply(sweep(x, 2, s, '*') - y, 2, crossprod))
+}
+
+models %>%
+  filter(size == min(seq_m)) %>%
+  mutate(error = map2_dbl(structured, pcs, ~{
+    true <- `if`(.x, true1, true2)
+    bdiff(.y$u, true$u)
+  })) %>%
+  select(method, structured, error)
+```
+
+## Conclusion
+
+- Packages {rsvd} and {svd} don't give results precise enough when data is not structured.
+
+- Packages {bigstatsr} and {irlba} are less precise (but precise enough!) than {RSpectra} because of a different tolerance parameter they use.
+
+- Package {bigstatsr} is as fast as the other packages while not relying on matrix operations (see user timings above). So, even if you don't have your R installation linked to some optimized math library, you would get the same performance. On the contrary, the other methods would likely be much slower if not using such optimized library.
+
+So, I highly recommend using package {RSpectra} to compute first principal components, because it is very fast and precise. Moreover, it works with e.g. sparse matrices. 
+Yet, If you have very large matrices or no optimized math library, I would recommend to use my package {bigstatsr} that internally uses {RSpectra} but implements parallel matrix-vector multiplication in Rcpp for its data format **stored on disk**. To learn more on other features of R package {bigstatsr}, please have a look at [the package website](https://privefl.github.io/bigstatsr/).
