@@ -1,0 +1,184 @@
+---
+title: "Using clustering to find points in an image"
+author: "Florian Privé"
+date: "November 20, 2018" # DO NOT USE Sys.Date()
+output:                    # DO NOT CHANGE
+  prettydoc::html_pretty:  # DO NOT CHANGE
+    theme: cayman          # DO NOT CHANGE
+    highlight: github      # DO NOT CHANGE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+par(mar = rep(0.1, 4))
+```
+
+
+In this post, I present my new package {img2coord}. This package can be used to retrieve coordinates from a scatter plot (as an image).    
+Have you ever made a plot, saved it as a png and moved on? When you get back to it, it is sometimes difficult to read the values from this plot, especially if there is no grid inside the plot.    
+This was a also a good way to practice with clustering.
+
+## A very simple example
+
+### Saving a plot as PNG
+
+```{r}
+file <- tempfile(fileext = ".png")
+png(file, width = 600, height = 400)
+set.seed(1)
+plot(c(0, runif(20), 1))
+dev.off()
+```
+
+### Reading the PNG in R
+
+```{r}
+img <- imager::grayscale(imager::load.image(file))
+plot(img, rescale = FALSE, axes = FALSE)
+```
+
+### Get pixel indices from points
+
+```{r}
+library(Matrix)
+img_mat <- Matrix(round(1 - as.matrix(img), 14), sparse = TRUE)
+image(t(img_mat))
+```
+
+```{r}
+list.contour <- img2coord:::get_contours(img_mat)
+img_mat_in <- img2coord:::get_inside(img_mat, list.contour)
+Matrix::image(t(img_mat_in))
+```
+
+```{r}
+head(ind <- which(img_mat_in != 0, arr.ind = TRUE))
+```
+
+### Cluster indices of pixels
+
+```{r}
+set.seed(1)
+km <- kmeans(ind, centers = 22)
+plot(ind, pch = 20)
+points(km$centers, pch = 20, col = "red")
+```
+
+Even when using the true number of clusters, *kmeans* get trapped in a local minimum (this is clearly not the best solution!), depending on the initialisation of centers. One possible solution would be to use many initialisations; let's try that.
+
+```{r}
+set.seed(1)
+km <- kmeans(ind, centers = 22, nstart = 100, iter.max = 100)
+plot(ind, pch = 20)
+points(km$centers, pch = 20, col = "red")
+```
+
+It is better but not optimal.
+
+### Using hclust to get centers
+
+```{r}
+get_centers <- function(points, clusters) {
+  do.call("rbind", by(points, clusters, colMeans, simplify = FALSE))
+}
+
+hc <- hclust(d <- dist(ind))
+centers <- get_centers(ind, cutree(hc, k = 22))
+plot(ind, pch = 20)
+points(centers, pch = 20, col = "red")
+```
+
+`hclust()` works well on this example.
+
+### Get the number of clusters
+
+What if we don't know the number of clusters (representing the initial points)? A statistic that could help us determine the number of clusters to use is the silhouette.
+
+```{r}
+K_seq <- seq(10, 30)
+stat <- sapply(K_seq, function(k) {
+  mean(cluster::silhouette(cutree(hc, k), d)[, 3])
+})
+plot(K_seq, stat, pch = 20); abline(v = 22, lty = 3)
+```
+
+## A less simple example
+
+
+```{r}
+file <- tempfile(fileext = ".png")
+png(file, width = 600, height = 400)
+set.seed(1)
+y <- c(0, runif(100), 1)
+plot(y, cex = runif(102, min = 0.5, max = 1.5))
+dev.off()
+```
+
+```{r}
+img <- imager::grayscale(imager::load.image(file))
+plot(img, rescale = FALSE, axes = FALSE)
+```
+
+```{r}
+img_mat <- Matrix(round(1 - as.matrix(img), 14), sparse = TRUE)
+list.contour <- img2coord:::get_contours(img_mat)
+img_mat_in <- img2coord:::get_inside(img_mat, list.contour)
+ind <- which(img_mat_in != 0, arr.ind = TRUE)
+```
+
+```{r}
+hc <- hclust(d <- dist(ind))
+K_seq <- seq(50, 150)
+stat <- sapply(K_seq, function(k) {
+  mean(cluster::silhouette(cutree(hc, k), d)[, 3])
+})
+plot(K_seq, stat, pch = 20); abline(v = 102, lty = 3)
+```
+
+```{r}
+(K_opt <- K_seq[which.max(stat)])
+centers <- get_centers(ind, cutree(hc, k = K_opt))
+plot(ind, pch = 20)
+points(centers, pch = 20, col = "red")
+```
+
+The silhouette statistic is not working that well in this situation. With the true number of points, we would could get:
+
+```{r}
+centers <- get_centers(ind, cutree(hc, k = 102))
+plot(ind, pch = 20)
+points(centers, pch = 20, col = "red")
+```
+
+If someone has a better statistic to (automatically) find the number of clusters, please share and I'll update this post.
+
+## Putting everything together as a package
+
+After you get the center of all points (cluster of pixels), you can interpolate the values based on the values of axe ticks.
+
+```{r}
+coord <- img2coord::get_coord(
+  file, 
+  x_ticks = seq(0, 100, 20),
+  y_ticks = seq(0, 1, 0.2),
+  K_min = 50, K_max = 150
+) 
+```
+
+This works better here because I combined the silhouette statistic with a gini coefficient (measure of dispersion) on the number of pixels in each cluster (assuming that they have approximately the same number). Let's have a look at the combined statistic:
+
+```{r}
+stat <- attr(coord, "stat")
+plot(names(stat), stat, pch = 20); abline(v = 102, lty = 3) 
+```
+
+```{r}
+round(coord$x, 2)
+plot(coord$y, y, pch = 20); abline(0, 1, col = "red")
+```
+
+Not bad :-). If you don't get the right number of clusters the first time, you can use the plot generated by `img2coord::get_coord()` to adjust `K`.
+
+Of course, this could be improved a lot. For example, this won't work for plots having a background color or some grid inside. Feel free to bring your ideas and propose some PR.
+
+Have a look at [the GitHub repo](https://github.com/privefl/img2coord).
