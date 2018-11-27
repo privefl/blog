@@ -1,7 +1,7 @@
 ---
 title: "Using clustering to find points in an image"
 author: "Florian Privé"
-date: "November 21, 2018" # DO NOT USE Sys.Date()
+date: "November 27, 2018" # DO NOT USE Sys.Date()
 output:                    # DO NOT CHANGE
   prettydoc::html_pretty:  # DO NOT CHANGE
     theme: cayman          # DO NOT CHANGE
@@ -9,13 +9,18 @@ output:                    # DO NOT CHANGE
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
-library(Matrix)
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", out.width = "80%")
 ```
 
 
-In this post, I present my new [package {img2coord}](https://github.com/privefl/img2coord). This package can be used to retrieve coordinates from a scatter plot (as an image).    
-Have you ever made a plot, saved it as a png and moved on? When you get back to it, it is sometimes difficult to read the values from this plot, especially if there is no grid inside the plot.    
+In this post, I present my new [package {img2coord}](https://github.com/privefl/img2coord). This package can be used to retrieve coordinates from a scatter plot (as an image).
+
+```{r, eval=FALSE}
+devtools::install_github("privefl/img2coord")
+```
+
+
+Have you ever made a plot, saved it as a png and moved on? When you come back to it, it is sometimes difficult to read the values from this plot, especially if there is no grid inside the plot.    
 Making this package was also a good way to practice with clustering.
 
 ## A very simple example
@@ -33,30 +38,25 @@ dev.off()
 ### Reading the PNG in R
 
 ```{r}
-img <- imager::grayscale(imager::load.image(file))
-withr::with_par(
-  list(mar = rep(0.1, 4)),
-  plot(img, rescale = FALSE, axes = FALSE)
-)
+(img <- magick::image_read(file))
 ```
 
 ### Get pixel indices from points
 
 ```{r}
-library(Matrix)
-img_mat <- Matrix(round(1 - as.matrix(img), 14), sparse = TRUE)
-Matrix::image(Matrix::t(img_mat))
+## grayscale
+img_mat <- img2coord:::img2mat(img)
+dim(img_mat)
 ```
 
 ```{r}
 list.contour <- img2coord:::get_contours(img_mat)
 img_mat_in <- img2coord:::get_inside(img_mat, list.contour)
-Matrix::image(Matrix::t(img_mat_in))
+dim(img_mat_in)
 ```
 
 ```{r}
-requireNamespace("Matrix")
-head(ind <- which(img_mat_in != 0, arr.ind = TRUE))
+head(ind <- which(img_mat_in > 0, arr.ind = TRUE))
 ```
 
 ### Cluster pixel indices
@@ -64,8 +64,19 @@ head(ind <- which(img_mat_in != 0, arr.ind = TRUE))
 ```{r}
 set.seed(1)
 km <- kmeans(ind, centers = 22)
-plot(ind, pch = 20)
-points(km$centers, pch = 20, col = "red")
+```
+
+```{r}
+library(ggplot2)
+myplot <- function(points, centers) {
+  p <- ggplot() + 
+    geom_tile(aes(col, row), data = as.data.frame(points)) + 
+    geom_point(aes(col, row), data = as.data.frame(centers), col = "red") + 
+    bigstatsr::theme_bigstatsr() + 
+    coord_equal()
+  print(p)
+}
+myplot(ind, km$centers)
 ```
 
 Even when using the true number of clusters, *kmeans* get trapped in a local minimum (this is clearly not the best solution!), depending on the initialisation of centers. One possible solution would be to use many initialisations; let's try that.
@@ -73,8 +84,7 @@ Even when using the true number of clusters, *kmeans* get trapped in a local min
 ```{r}
 set.seed(1)
 km <- kmeans(ind, centers = 22, nstart = 100, iter.max = 100)
-plot(ind, pch = 20)
-points(km$centers, pch = 20, col = "red")
+myplot(ind, km$centers)
 ```
 
 It is better but not optimal.
@@ -89,8 +99,7 @@ get_centers <- function(points, clusters) {
 d <- dist(ind)
 hc <- hclust(d)
 centers <- get_centers(ind, cutree(hc, k = 22))
-plot(ind, pch = 20)
-points(centers, pch = 20, col = "red")
+myplot(ind, centers)
 ```
 
 `hclust()` works well for this example.
@@ -120,22 +129,18 @@ dev.off()
 ```
 
 ```{r}
-img <- imager::grayscale(imager::load.image(file))
-withr::with_par(
-  list(mar = rep(0.1, 4)),
-  plot(img, rescale = FALSE, axes = FALSE)
-)
+(img <- magick::image_read(file))
 ```
 
 ```{r}
-img_mat <- Matrix(round(1 - as.matrix(img), 14), sparse = TRUE)
+img_mat <- img2coord:::img2mat(img)
 list.contour <- img2coord:::get_contours(img_mat)
 img_mat_in <- img2coord:::get_inside(img_mat, list.contour)
-ind <- which(img_mat_in != 0, arr.ind = TRUE)
+ind <- which(img_mat_in > 0, arr.ind = TRUE)
 ```
 
 ```{r}
-hc <- hclust(d <- dist(ind))
+hc <- flashClust::hclust(d <- dist(ind))
 K_seq <- seq(50, 150)
 stat <- sapply(K_seq, function(k) {
   mean(cluster::silhouette(cutree(hc, k), d)[, 3])
@@ -146,16 +151,14 @@ plot(K_seq, stat, pch = 20); abline(v = 102, lty = 3)
 ```{r}
 (K_opt <- K_seq[which.max(stat)])
 centers <- get_centers(ind, cutree(hc, k = K_opt))
-plot(ind, pch = 20)
-points(centers, pch = 20, col = "red")
+myplot(ind, centers)
 ```
 
 The silhouette statistic is giving a good yet not optimal solution in this situation. Using the true number of points, we would get:
 
 ```{r}
 centers <- get_centers(ind, cutree(hc, k = 102))
-plot(ind, pch = 20)
-points(centers, pch = 20, col = "red")
+myplot(ind, centers)
 ```
 
 If someone has a better statistic to (automatically) find the number of clusters, please share it and I'll update this post.
@@ -164,7 +167,7 @@ If someone has a better statistic to (automatically) find the number of clusters
 
 Finally, after you get the center of all points (pixel clusters), you can interpolate the values based on the values of axe ticks.
 
-```{r}
+```{r, fig.width=9}
 coord <- img2coord::get_coord(
   file, 
   x_ticks = seq(0, 100, 20),
@@ -180,6 +183,17 @@ stat <- attr(coord, "stat")
 plot(names(stat), stat, pch = 20); abline(v = 102, lty = 3) 
 ```
 
+If you don't get the right number of clusters the first time, you can use the plot generated by `img2coord::get_coord()` to adjust `K`.
+
+```{r, fig.width=9}
+coord <- img2coord::get_coord(
+  file, 
+  x_ticks = seq(0, 100, 20),
+  y_ticks = seq(0, 1, 0.2),
+  K = 102  ## 99 + 3
+) 
+```
+
 Let's verify the coordinates we get:
 
 ```{r}
@@ -187,12 +201,33 @@ round(coord$x, 2)
 plot(coord$y, y, pch = 20); abline(0, 1, col = "red")
 ```
 
-Not bad :-). If you don't get the right number of clusters the first time, you can use the plot generated by `img2coord::get_coord()` to adjust `K`.
+## Handling large images
+
+```{r}
+url <- "https://goo.gl/K6Y7D1"
+library(img2coord)
+(img <- img_read(url))
+```
+
+```{r, error=TRUE}
+get_coord(img, seq(0, 20, 5), seq(94, 102, 2), K_min = 40, K_max = 80)
+```
+
+The green points are spanning 21,358 pixels, which could be a lot to process, depending on your computer. To solve this problem, you can do:
+
+```{r, fig.width=9}
+img %>%
+ img_scale(0.4) %>%
+ get_coord(seq(0, 20, 5), seq(94, 102, 2), K_min = 40, K_max = 80)
+```
+
 
 ## Conclusion
 
-We have seen that `hclust()` was performing better than `kmeans()` (for this example). Then, we have seen how to determine the number of clusters. Finally, we have seen that using a particular statistic, specifically designed for this problem, improved the solution.
+We have seen that `hclust()` was performing better than `kmeans()` (for this example). For some reason I don't understand yet, initializing `kmeans()` with centers from `hclust()` works even better. 
 
-Of course, this could be improved a lot. For example, this won't work for plots having a background color or some grid inside. Feel free to bring your ideas.
+Then, we have seen how to determine the number of clusters. Finally, we have seen that using a particular statistic, specifically designed for this problem, improved the solution.
+
+Of course, this could be improved a lot. For example, this won't work for plots having a background color or some grid inside. Feel free to bring your ideas. BTW, thanks [Robin](https://twitter.com/robincura) who brought some nice ideas that improved this package a lot.
 
 Have a look at [the GitHub repo](https://github.com/privefl/img2coord).
