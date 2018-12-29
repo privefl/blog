@@ -22,30 +22,30 @@ layout: post
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
 <span class="kw">system.time</span>(mat1 &lt;-<span class="st"> </span><span class="kw">gen_grow</span>(<span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">500</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.21    0.17    0.37</code></pre>
+##   0.333   0.189   0.523</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(mat2 &lt;-<span class="st"> </span><span class="kw">gen_grow</span>(<span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2000</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    3.91    3.00    6.92</code></pre>
+##   6.183   7.603  13.803</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gen_sapply &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">n =</span> <span class="fl">1e3</span>, <span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">500</span>) {
   <span class="kw">sapply</span>(max, <span class="cf">function</span>(m) <span class="kw">runif</span>(n, <span class="dt">max =</span> m))
 }</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
 <span class="kw">system.time</span>(mat3 &lt;-<span class="st"> </span><span class="kw">gen_sapply</span>(<span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">500</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.01    0.00    0.01</code></pre>
+##   0.026   0.005   0.030</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">identical</span>(mat3, mat1)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(mat4 &lt;-<span class="st"> </span><span class="kw">gen_sapply</span>(<span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2000</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.07    0.00    0.07</code></pre>
+##   0.108   0.014   0.122</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">identical</span>(mat4, mat2)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <blockquote>
 <p>Wow, <code>sapply()</code> is so much faster than loops!</p>
 </blockquote>
-<p><img src="../images/bullshit.jpg" width="45%" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/images/bullshit.jpg" width="45%" /></p>
 <p>Don’t get this wrong, <code>sapply()</code> or <code>lapply()</code> is nothing but a loop internally, so <strong><code>sapply()</code> shouldn’t be any faster than a loop</strong>. Here, the problem is not with the loop, but what we do inside this loop. Indeed, in <code>gen_grow()</code>, at each iteration of the loop, we reallocate a <em>new</em> matrix with one more column, which takes time.</p>
-<p><img src="../images/stairs.jpg" width="45%" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/images/stairs.jpg" width="45%" /></p>
 <p>Imagine you want to climb all those stairs, but you have to climb only stair 1, go to the bottom then climb the first 2 stairs, go to the bottom then climb the first three, and so on until you reach the top. This takes way more time than just climbing all stairs at once. This is basically what happens in function <code>gen_grow()</code> but instead of climbing more stairs, it allocates more memory, which also takes time.</p>
 <p>You have at least two solutions to this problem. The first solution is to pre-allocate the whole result once (if you know its size in advance) and just fill it:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gen_prealloc &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">n =</span> <span class="fl">1e3</span>, <span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">500</span>) {
@@ -58,12 +58,12 @@ layout: post
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
 <span class="kw">system.time</span>(mat5 &lt;-<span class="st"> </span><span class="kw">gen_prealloc</span>(<span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">500</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.02    0.00    0.01</code></pre>
+##   0.030   0.000   0.031</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">identical</span>(mat5, mat1)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(mat6 &lt;-<span class="st"> </span><span class="kw">gen_prealloc</span>(<span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2000</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.08    0.00    0.08</code></pre>
+##   0.101   0.009   0.109</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">identical</span>(mat6, mat2)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p>Another solution that can be really useful if you don’t know the size of the result is to store the results in a list. A list, as opposed to a vector or a matrix, stores its elements in different places in memory (the elements don’t have to be contiguously stored in memory) so that you can add one element to the list without copying the rest of the list.</p>
@@ -77,15 +77,15 @@ layout: post
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1</span>)
 <span class="kw">system.time</span>(mat7 &lt;-<span class="st"> </span><span class="kw">gen_list</span>(<span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">500</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.02    0.00    0.02</code></pre>
+##   0.028   0.000   0.028</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">identical</span>(mat7, mat1)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(mat8 &lt;-<span class="st"> </span><span class="kw">gen_list</span>(<span class="dt">max =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2000</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.06    0.00    0.07</code></pre>
+##   0.098   0.006   0.105</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">identical</span>(mat8, mat2)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<p><img src="../images/data-structures.jpg" width="55%" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/images/data-structures.jpg" width="55%" /></p>
 </div>
 <div id="vectorization-why" class="section level2">
 <h2>Vectorization, why?</h2>
@@ -115,10 +115,10 @@ compiler<span class="op">::</span><span class="kw">enableJIT</span>(<span class=
   <span class="dt">VECTORIZED =</span> <span class="kw">add_vectorized</span>(x, y)
 )</code></pre></div>
 <pre><code>## Unit: microseconds
-##        expr        min         lq        mean      median         uq        max neval cld
-##        LOOP 139306.750 169242.364 181354.6624 175967.0830 185381.558 345509.411   100   c
-##      SAPPLY 117026.874 149404.590 164478.9570 161751.1765 174571.052 369295.404   100  b 
-##  VECTORIZED     94.361    193.025    229.3289    227.2925    274.142    381.746   100 a</code></pre>
+##        expr        min          lq        mean      median         uq        max neval
+##        LOOP 116724.093 137378.5615 156935.0679 149568.2770 165776.978 281091.814   100
+##      SAPPLY 125235.495 146122.2815 174867.8669 169495.3810 192442.822 337318.547   100
+##  VECTORIZED    109.899    212.5135    247.1062    240.1635    260.046    574.126   100</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">compiler<span class="op">::</span><span class="kw">enableJIT</span>(<span class="dv">3</span>)  ## default</code></pre></div>
 <pre><code>## [1] 0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">microbenchmark<span class="op">::</span><span class="kw">microbenchmark</span>(
@@ -127,11 +127,11 @@ compiler<span class="op">::</span><span class="kw">enableJIT</span>(<span class=
   <span class="dt">VECTORIZED =</span> <span class="kw">add_vectorized</span>(x, y)
 )</code></pre></div>
 <pre><code>## Unit: microseconds
-##        expr        min          lq       mean      median          uq        max neval cld
-##        LOOP 141996.836 164231.0225 185083.712 176481.5930 190328.1715 391608.057   100   c
-##      SAPPLY 116131.283 148153.5755 169681.157 166047.6990 184191.1330 345131.639   100  b 
-##  VECTORIZED    153.625    206.5995    251.045    235.0735    280.7635    419.821   100 a</code></pre>
-<p>Here, the vectorized function is much faster than the two others and the for-loop approach is faster than the <code>sapply</code> equivalent when just-in-time compilation is enabled. (Edit: for some unknown reason, this result is not true anymore when I render this blog post. Try the code yourself!)</p>
+##        expr       min         lq        mean      median          uq        max neval
+##        LOOP  8762.638  10646.571  12672.2114  11206.1365  12772.3280  35368.977   100
+##      SAPPLY 82463.586 116025.847 148921.6490 142601.9835 171450.0465 266249.684   100
+##  VECTORIZED   123.004    219.397    320.1623    259.7455    384.3415    683.014   100</code></pre>
+<p>Here, the vectorized function is much faster than the two others and the for-loop approach is faster than the <code>sapply</code> equivalent when just-in-time compilation is enabled.</p>
 <p>As an interpreted language, for each iteration <code>res[i] &lt;- x[i] + y[i]</code>, R has to ask:</p>
 <ol style="list-style-type: decimal">
 <li><p>what is the type of <code>x[i]</code> and <code>y[i]</code>?</p></li>
