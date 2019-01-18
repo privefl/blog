@@ -1,7 +1,4 @@
 base
-KernSmooth
-misc3d
-mvtnorm
-rgl
 ks
+rgl
 rglwidget
