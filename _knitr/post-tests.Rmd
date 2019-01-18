@@ -86,14 +86,14 @@ Yet, we could make another robust test based on the idea of the first section.
 I followed the algorithm detailed in [@Zheng2012, section 3.9.1] to simulate contingency tables under different parameters as, for example, the genotype relative risk (GRR) $\lambda_2$, the genetic model, the minor allele frequency (MAF) $p$, etc.
 
 ```{r}
-source("D:/Projets/blog/code/simu_counts.R")
-source("D:/Projets/blog/code/ZCATT.R")
+source("../code/simu_counts.R")
+source("../code/ZCATT.R")
 ```
 
 Let us plot simulated values of three statistics, ZCATT(0), ZCATT(1/2) and ZCATT(1), by pairs. I will add to these plot two decision boundaries corresponding to the rejection of the null hypothesis for the statistics $MAX2 = \max\{|S_1|, |S_2|\}$ (the square) and $DENS2 = \hat{f}_{S_1, S_2}$ (the oval).
 
 ```{r, fig.align='center'}
-source("D:/Projets/blog/code/square.R")
+source("../code/square.R")
 pacman::p_load(ks) 
 
 # Set of parameters

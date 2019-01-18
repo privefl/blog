@@ -10,4 +10,7 @@ node_modules
 package.json
 .Rproj.user
 .Rhistory
-*_cache
+_knitr/*_files/*
+_knitr/*_cache/*
+knitr_files/*_cache/
+
