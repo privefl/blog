@@ -1,87 +1,17 @@
-<!DOCTYPE html>
+---
+title: "Showing a different approach to making statistical tests"
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+author: "Florian Privé"
+date: "September 6, 2016"
+layout: post
+---
 
-<head>
-
-<meta charset="utf-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="pandoc" />
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<meta name="author" content="Florian Privé" />
-
-
-<title>Showing a different approach to making statistical tests</title>
-
-<script src="post-tests_files/htmlwidgets-1.2/htmlwidgets.js"></script>
-<link href="post-tests_files/rglwidgetClass-2/rgl.css" rel="stylesheet" />
-<script src="post-tests_files/rglwidgetClass-2/rglClass.src.js"></script>
-<script src="post-tests_files/CanvasMatrix4-2016/CanvasMatrix.src.js"></script>
-<script src="post-tests_files/rglWebGL-binding-0.99.16/rglWebGL.js"></script>
-<script src="post-tests_files/jquery-1.11.3/jquery.min.js"></script>
-<link href="post-tests_files/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
-<script src="post-tests_files/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-
-
-<style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-</style>
-
-
-
-<link rel="stylesheet" href="post-tests_files/style.css" type="text/css" />
-
-</head>
-
-<body>
-
-
-
-
-<section class="page-header">
-<h1 class="title toc-ignore project-name">Showing a different approach to making statistical tests</h1>
-<h4 class="author project-author">Florian Privé</h4>
-<h4 class="date project-date">September 6, 2016</h4>
-</section>
-
-
+<script src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/htmlwidgets-1.2/htmlwidgets.js"></script>
+<script src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/rglwidgetClass-2/rglClass.src.js"></script>
+<script src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/CanvasMatrix4-2016/CanvasMatrix.src.js"></script>
+<script src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/rglWebGL-binding-0.99.16/rglWebGL.js"></script>
+<script src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/jquery-1.11.3/jquery.min.js"></script>
+<script src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/crosstalk-1.0.0/js/crosstalk.min.js"></script>
 
 <section class="main-content">
 <p>In this post, I will talk about an alternative way to choose quantiles (and more broadly, decision boundaries) for statistical tests, the ones you choose in order to have a 95% confidence interval (5% of type-I error). I will then show that this idea can be used to combine tests. I will use some illustrations in R to make this clearer.</p>
@@ -94,7 +24,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>to reject <span class="math inline">\(H_0\)</span> (with significance <span class="math inline">\(\alpha = 5\%\)</span>) only for the largest values of the test statistic, which means rejecting the null hypothesis for values that are larger than the 95-percentile:</li>
 </ul>
 <div class="figure" style="text-align: center">
-<img src="../images/post-tests/chi-squared_test2.jpg" alt="One-tailed test" width="500" />
+<img src="{{ site.url }}{{ site.baseurl }}/images/post-tests/chi-squared_test2.jpg" alt="One-tailed test" width="500" />
 <p class="caption">
 One-tailed test
 </p>
@@ -103,7 +33,7 @@ One-tailed test
 <li>or to reject <span class="math inline">\(H_0\)</span> for both largest and smallest values of the statistic. Indeed, smallest values could be considered “too good to be true” <span class="citation">(Stuart 1954)</span>. Then, <span class="math inline">\(H_0\)</span> is rejected for values smaller than the 2.5-percentile or larger than the 97.5-percentile:</li>
 </ul>
 <div class="figure" style="text-align: center">
-<img src="../images/post-tests/chi-squared_test1.jpg" alt="Two-tailed test" width="500" />
+<img src="{{ site.url }}{{ site.baseurl }}/images/post-tests/chi-squared_test1.jpg" alt="Two-tailed test" width="500" />
 <p class="caption">
 Two-tailed test
 </p>
@@ -111,7 +41,7 @@ Two-tailed test
 <p><br> <strong>Why choosing? Why not letting the test choose by itself?</strong></p>
 <p>What do I mean by this? If you make the decision boundary on the test statistic’s density’s values (y-axis), not directly on the statistic’s values (x-axis), you always obtain a one-tailed test whatever is the distribution of the test statistic. Then, you reject <span class="math inline">\(H_0\)</span> for all values that have a corresponding density lower than the 5-percentile:</p>
 <div class="figure" style="text-align: center">
-<img src="../images/post-tests/chi-squared_test3.jpg" alt="Always a one-tailed test, but with respect to the y-axis" width="500" />
+<img src="{{ site.url }}{{ site.baseurl }}/images/post-tests/chi-squared_test3.jpg" alt="Always a one-tailed test, but with respect to the y-axis" width="500" />
 <p class="caption">
 Always a one-tailed test, but with respect to the y-axis
 </p>
@@ -126,7 +56,7 @@ Always a one-tailed test, but with respect to the y-axis
 <p>Say that you have two goodness-of-fit test statistics for the Weibull distribution (GOFWs) (a well-known distribution in survival analysis). How to combine them?</p>
 <p>A priori, the best way I can see is to use their joint distribution. A 2D distribution has a density, as before, so we can find a threshold so that only 5% of this distribution’s values have a corresponding density under this threshold. This threshold is also called a 95%-contour.</p>
 <p>Again, an image will be clearer than words. I drew several samples of size 50 from the Weibull distribution and three alternatives to the Weibull distribution: the Gamma, Log-Normal and Dhillon I distributions. For all these samples, I computed the corresponding values of the two GOFWs, and I plotted these paired values:</p>
-<p><img src="../images/post-tests/combi.jpg" width="600" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/images/post-tests/combi.jpg" width="600" style="display: block; margin: auto;" /></p>
 <p>So, in black are the paired values for several samples of the Weibull distribution (the null hypothesis) and the alternatives are spread around. We have also in black the 95%-contour for <span class="math inline">\(H_0\)</span>. So, points outside of this boundary correspond to samples for which we reject the null hypothesis <span class="math inline">\(H_0\)</span>.</p>
 <p>This gave one of the most powerful tests for the Weibull distribution.</p>
 <p>For an example with R code, see the second example below.</p>
@@ -187,7 +117,7 @@ simus.save &lt;-<span class="st"> </span><span class="kw">replace</span>(simus, 
   <span class="co"># Legend</span>
   <span class="kw">legend</span>(<span class="dt">x =</span> <span class="st">&quot;bottomright&quot;</span>, <span class="dt">legend =</span> models, <span class="dt">pch =</span> PCH, <span class="dt">col =</span> <span class="dv">1</span><span class="op">:</span>n)
 }</code></pre></div>
-<p><img src="post-tests_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /><img src="post-tests_files/figure-html/unnamed-chunk-6-2.png" style="display: block; margin: auto;" /><img src="post-tests_files/figure-html/unnamed-chunk-6-3.png" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/figure-html/unnamed-chunk-6-2.png" style="display: block; margin: auto;" /><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/figure-html/unnamed-chunk-6-3.png" style="display: block; margin: auto;" /></p>
 <p>Let us plot these three statistics’ values in 3D:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pacman<span class="op">::</span><span class="kw">p_load</span>(rgl, rglwidget) 
 
@@ -237,7 +167,7 @@ rgl<span class="op">::</span><span class="kw">plot3d</span>(<span class="dt">x =
   }
   <span class="co"># Legend</span>
   <span class="kw">legend</span>(<span class="dt">x =</span> <span class="st">&quot;bottomright&quot;</span>, <span class="dt">legend =</span> models, <span class="dt">pch =</span> PCH, <span class="dt">col =</span> <span class="dv">1</span><span class="op">:</span>n)</code></pre></div>
-<p><img src="post-tests_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-tests_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /></p>
 <p>The lines correspond to the decision boundaries of MAX3: for each of the 3 studied statistic, <span class="math inline">\(H_0\)</span> is rejected for a point which is outside the corresponding two lines. At this point, if I made myself clear enough, you should see that the decision boundary of MAX3 on the previous plot is defined by the convex hull of the 6 lines.</p>
 <p>As before, the oval represents the DENS2 statistic (here, on the two first PCs). It does give a robust test, yet slightly less powerful than MAX3. Indeed, to compare these two tests, there is no need for computing their precise powers for each alternative. You just have to compare the number of alternatives (blue, green, and red points) for which <span class="math inline">\(H_0\)</span> is rejected with one test but not the other, on the plot. At the top and bottom of the plot, we can see a <strong>large</strong> region where we would reject <span class="math inline">\(H_0\)</span> with DENS2 and not MAX3, yet there are <strong>not many</strong> alternatives in there. On the contrary, there are 3 <strong>small</strong> areas on the left and on the right of the plot where we would reject <span class="math inline">\(H_0\)</span> with MAX3 and not DENS2, yet there are <strong>many</strong> alternatives in there.</p>
 <p>The problem of DENS2 being slightly less powerful, I think, is that the 2D or 3D distributions of the statistics’ values for the alternatives are highly correlated with the ones of the null hypothesis (they have the same shape and tends to be on the same diagonal). So, even if the “area of H0” is larger with MAX2 or MAX3 than DENS2 (see all 2D plots), the number of alternatives in there is lower, so they give a more powerful test than DENS2 in this case.</p>
@@ -261,18 +191,3 @@ rgl<span class="op">::</span><span class="kw">plot3d</span>(<span class="dt">x =
 </div>
 </div>
 </section>
-
-
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
-
-</body>
-</html>
