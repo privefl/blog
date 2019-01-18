@@ -1,7 +1,7 @@
 ---
 title: "Showing a different approach to making statistical tests"
 
-author: "Florian Privé"
+author: "Florian PrivÃ©"
 date: "September 6, 2016"
 layout: post
 ---
