@@ -1,0 +1,18 @@
+---
+title: Test Post
+date: December 15, 2018
+output: 
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+This is a test.
+
+![Thanks GitHub for hosting my website!](../images/github-pages.jpg)
+
+
+```{r test}
+plot(rnorm(100))
+
+```
