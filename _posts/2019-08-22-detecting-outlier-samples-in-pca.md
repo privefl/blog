@@ -1,79 +1,10 @@
-<!DOCTYPE html>
+---
+title: "Detecting outlier samples in PCA"
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-
-<head>
-
-<meta charset="utf-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="pandoc" />
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<meta name="author" content="Florian Privé" />
-
-<meta name="date" content="2019-08-22" />
-
-<title>Detecting outlier samples in PCA</title>
-
-
-
-<style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-</style>
-
-
-
-<link rel="stylesheet" href="post-outlier-pca_files/style.css" type="text/css" />
-
-</head>
-
-<body>
-
-
-
-
-<section class="page-header">
-<h1 class="title toc-ignore project-name">Detecting outlier samples in PCA</h1>
-<h4 class="author project-author">Florian Privé</h4>
-<h4 class="date project-date">August 22, 2019</h4>
-</section>
-
+author: "Florian Privé"
+date: "August 22, 2019"
+layout: post
+---
 
 
 <section class="main-content">
@@ -91,7 +22,7 @@ U &lt;-<span class="st"> </span>pca<span class="op">$</span>x</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
 <span class="kw">theme_set</span>(bigstatsr<span class="op">::</span><span class="kw">theme_bigstatsr</span>(<span class="fl">0.8</span>))
 <span class="kw">qplot</span>(U[, <span class="dv">1</span>], U[, <span class="dv">2</span>]) <span class="op">+</span><span class="st"> </span><span class="kw">coord_equal</span>()</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-4-1.png" width="70%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-4-1.png" width="70%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="measuring-outlierness" class="section level3">
 <h3>Measuring outlierness</h3>
@@ -102,14 +33,14 @@ U &lt;-<span class="st"> </span>pca<span class="op">$</span>x</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">U2 &lt;-<span class="st"> </span>U
 U2[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">30</span>
 <span class="kw">qplot</span>(U2[, <span class="dv">1</span>], U2[, <span class="dv">2</span>]) <span class="op">+</span><span class="st"> </span><span class="kw">coord_equal</span>()</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-6-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-6-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">apply</span>(U2, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="kw">which</span>( <span class="kw">abs</span>(x <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(x)) <span class="op">&gt;</span><span class="st"> </span>(<span class="dv">6</span> <span class="op">*</span><span class="st"> </span><span class="kw">sd</span>(x)) ))</code></pre></div>
 <pre><code>## integer(0)</code></pre>
 <p>Still not an outlier..</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">U3 &lt;-<span class="st"> </span>U2
 U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">80</span>
 <span class="kw">qplot</span>(U3[, <span class="dv">1</span>], U3[, <span class="dv">2</span>]) <span class="op">+</span><span class="st"> </span><span class="kw">coord_equal</span>()</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-7-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-7-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(magrittr)
 <span class="kw">apply</span>(U3, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="kw">which</span>( <span class="kw">abs</span>(x <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(x)) <span class="op">&gt;</span><span class="st"> </span>(<span class="dv">6</span> <span class="op">*</span><span class="st"> </span><span class="kw">sd</span>(x)) )) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">Reduce</span>(union, .)</code></pre></div>
@@ -126,7 +57,7 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <p>We get a new outlier.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">col &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;black&quot;</span>, <span class="kw">nrow</span>(U3)); col[ind.out] &lt;-<span class="st"> &quot;red&quot;</span>
 <span class="kw">qplot</span>(U3[, <span class="dv">1</span>], U3[, <span class="dv">3</span>], <span class="dt">color =</span> <span class="kw">I</span>(col), <span class="dt">size =</span> <span class="kw">I</span>(<span class="dv">2</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">coord_equal</span>()</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="a-continuous-view-of-this-criterion" class="section level3">
 <h3>A continuous view of this criterion</h3>
@@ -135,10 +66,10 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <span class="st">  </span><span class="kw">apply</span>(<span class="dv">1</span>, max)
 <span class="kw">qplot</span>(U3[, <span class="dv">1</span>], U3[, <span class="dv">3</span>], <span class="dt">color =</span> dist, <span class="dt">size =</span> <span class="kw">I</span>(<span class="dv">3</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">coord_equal</span>() <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">scale_color_viridis_c</span>(<span class="dt">trans =</span> <span class="st">&quot;log&quot;</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">6</span>))</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(<span class="dt">y =</span> <span class="kw">sort</span>(dist, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)) <span class="op">+</span>
 <span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="dv">6</span>, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="investigating-two-other-criteria-of-outlierness" class="section level2">
@@ -148,7 +79,7 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <p>Instead of using the infinite distance, Mahalanobis distance is a multivariate distance based on all variables (PCs here) at once. We use a robust version of this distance, which is implemented in packages {robust} and {robustbase} <span class="citation">(Gnanadesikan and Kettenring 1972, <span class="citation">Yohai and Zamar (1988)</span>, <span class="citation">Maronna and Zamar (2002)</span>, <span class="citation">Todorov, Filzmoser, and others (2009)</span>)</span> and that is reexported in {bigutilsr}.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dist2 &lt;-<span class="st"> </span><span class="kw">covRob</span>(U3, <span class="dt">estim =</span> <span class="st">&quot;pairwiseGK&quot;</span>)<span class="op">$</span>dist
 <span class="kw">qplot</span>(dist, <span class="kw">sqrt</span>(dist2))</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cowplot<span class="op">::</span><span class="kw">plot_grid</span>(
   <span class="kw">qplot</span>(U3[, <span class="dv">1</span>], U3[, <span class="dv">2</span>], <span class="dt">color =</span> dist2, <span class="dt">size =</span> <span class="kw">I</span>(<span class="dv">2</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">coord_equal</span>() <span class="op">+</span><span class="st"> </span>
 <span class="st">    </span><span class="kw">scale_color_viridis_c</span>(<span class="dt">trans =</span> <span class="st">&quot;log&quot;</span>, <span class="dt">breaks =</span> <span class="ot">NULL</span>),
@@ -156,23 +87,23 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <span class="st">    </span><span class="kw">scale_color_viridis_c</span>(<span class="dt">trans =</span> <span class="st">&quot;log&quot;</span>, <span class="dt">breaks =</span> <span class="ot">NULL</span>),
   <span class="dt">rel_widths =</span> <span class="kw">c</span>(<span class="fl">0.7</span>, <span class="fl">0.4</span>), <span class="dt">scale =</span> <span class="fl">0.95</span>
 )</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-13-1.png" width="95%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-13-1.png" width="95%" style="display: block; margin: auto;" /></p>
 <p>This new criterion provides similar results for this data. These robust Mahalanobis distances are approximately Chi-square distributed, which enables deriving p-values of outlierness.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pval &lt;-<span class="st"> </span><span class="kw">pchisq</span>(dist2, <span class="dt">df =</span> <span class="dv">10</span>, <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>)
 <span class="kw">hist</span>(pval)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">is.out &lt;-<span class="st"> </span>(pval <span class="op">&lt;</span><span class="st"> </span>(<span class="fl">0.05</span> <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(dist2)))  <span class="co"># Bonferroni correction</span>
 <span class="kw">sum</span>(is.out)</code></pre></div>
 <pre><code>## [1] 33</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(U3[, <span class="dv">3</span>], U3[, <span class="dv">7</span>], <span class="dt">color =</span> is.out, <span class="dt">size =</span> <span class="kw">I</span>(<span class="dv">3</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">coord_equal</span>()</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-14-2.png" width="70%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-14-2.png" width="70%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="local-outlier-factor-lof" class="section level3">
 <h3>Local Outlier Factor (LOF)</h3>
 <p>LOF statistic <span class="citation">(Breunig et al. 2000)</span> has been cited more than 4000 times. Instead of computing a distance from the center, it uses some local density of points. We make use of the fast K nearest neighbours implementation of R package {nabor} <span class="citation">(Elseberg et al. 2012)</span> to implement this statistic efficiently in {bigutilsr}.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">llof &lt;-<span class="st"> </span><span class="kw">LOF</span>(U3)  <span class="co"># log(LOF) by default</span>
 <span class="kw">qplot</span>(dist2, llof)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-15-1.png" width="70%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-15-1.png" width="70%" style="display: block; margin: auto;" /></p>
 <p>The fake outlier that we introduced is now clearly an outlier. The other points, not so much.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cowplot<span class="op">::</span><span class="kw">plot_grid</span>(
   <span class="kw">qplot</span>(U3[, <span class="dv">1</span>], U3[, <span class="dv">2</span>], <span class="dt">color =</span> llof, <span class="dt">size =</span> <span class="kw">I</span>(<span class="dv">3</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">coord_equal</span>() <span class="op">+</span><span class="st"> </span>
@@ -181,7 +112,7 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <span class="st">    </span><span class="kw">scale_color_viridis_c</span>(<span class="dt">breaks =</span> <span class="ot">NULL</span>),
   <span class="dt">rel_widths =</span> <span class="kw">c</span>(<span class="fl">0.7</span>, <span class="fl">0.4</span>), <span class="dt">scale =</span> <span class="fl">0.95</span>
 )</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-16-1.png" width="95%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-16-1.png" width="95%" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="choosing-the-threshold-of-being-an-outlier" class="section level2">
@@ -199,7 +130,7 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <pre><code>##       25% 
 ## -2.725665</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hist</span>(x); <span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">c</span>(tukey_low, tukey_up), <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-17-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-17-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(x <span class="op">&lt;</span><span class="st"> </span>tukey_low <span class="op">|</span><span class="st"> </span>x <span class="op">&gt;</span><span class="st"> </span>tukey_up)</code></pre></div>
 <pre><code>## [1] 0.0057</code></pre>
 <p>where <code>IQR(x)</code> is equal to <code>quantile(x, 0.75) - quantile(x, 0.25)</code> (the InterQuartile Range).</p>
@@ -214,7 +145,7 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <pre><code>##       25% 
 ## -3.232256</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hist</span>(x, <span class="st">&quot;FD&quot;</span>); <span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">c</span>(tukey_low, tukey_up), <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-18-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-18-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(x <span class="op">&lt;</span><span class="st"> </span>tukey_low <span class="op">|</span><span class="st"> </span>x <span class="op">&gt;</span><span class="st"> </span>tukey_up)</code></pre></div>
 <pre><code>## [1] 0.0294</code></pre>
 <p>To solve the problem of skewness, the medcouple (mc) has been introduced <span class="citation">(Hubert and Vandervieren 2008)</span> and is implemented in <code>robustbase::adjboxStats()</code>.</p></li>
@@ -229,7 +160,7 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">print</span>(<span class="kw">tukey_mc_up</span>(x, <span class="dt">coef =</span> <span class="fl">1.5</span>)), <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>)</code></pre></div>
 <pre><code>## [1] 16.74215</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">print</span>(<span class="kw">tukey_mc_up</span>(x)), <span class="dt">col =</span> <span class="st">&quot;green&quot;</span>)  <span class="co"># accounts for multiple testing</span></code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-19-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-19-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <pre><code>## [1] 25.93299</code></pre>
 <p>Applying this corrected Tukey’s rule to our statistics:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tukey_mc_up</span>(dist)</code></pre></div>
@@ -237,7 +168,7 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">qplot</span>(dist2, llof) <span class="op">+</span>
 <span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="kw">tukey_mc_up</span>(dist2), <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="kw">tukey_mc_up</span>(llof),  <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-20-1.png" width="70%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-20-1.png" width="70%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="histograms-gap" class="section level3">
 <h3>Histogram’s gap</h3>
@@ -249,19 +180,19 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 ##  $ x  : num [1:515] 2.08 2.06 1.74 1.86 2.04 ...
 ##  $ lim: num [1:2] -Inf 5.75</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">hist_out</span>(dist)<span class="op">$</span>lim[<span class="dv">2</span>], <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-21-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-21-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hist</span>(dist2, <span class="dt">breaks =</span> nclass.scottRob)
 <span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">hist_out</span>(dist2)<span class="op">$</span>lim[<span class="dv">2</span>], <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-22-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-22-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">hist</span>(llof, <span class="dt">breaks =</span> nclass.scottRob)
 <span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">hist_out</span>(llof)<span class="op">$</span>lim[<span class="dv">2</span>], <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-23-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-23-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <p>This criterion is convenient because it does not assume any distribution of the data, just that it is compact and that the outliers are not in the pack.</p>
 <p>It could be used in other contexts, e.g. choosing the number of outlier principal components:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eigval &lt;-<span class="st"> </span>pca<span class="op">$</span>sdev<span class="op">^</span><span class="dv">2</span>
 <span class="kw">hist</span>(eigval, <span class="dt">breaks =</span> <span class="st">&quot;FD&quot;</span>)  <span class="co"># &quot;FD&quot; gives a bit more bins than scottRob</span>
 <span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">hist_out</span>(eigval, <span class="dt">breaks =</span> <span class="st">&quot;FD&quot;</span>)<span class="op">$</span>lim[<span class="dv">2</span>], <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</code></pre></div>
-<p><img src="post-outlier-pca_files/figure-html/unnamed-chunk-24-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="{{ site.url }}{{ site.baseurl }}/knitr_files/post-outlier-pca_files/figure-html/unnamed-chunk-24-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sum</span>(eigval <span class="op">&gt;</span><span class="st"> </span><span class="kw">hist_out</span>(eigval, <span class="dt">breaks =</span> <span class="st">&quot;FD&quot;</span>)<span class="op">$</span>lim[<span class="dv">2</span>])</code></pre></div>
 <pre><code>## [1] 3</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pca_nspike</span>(eigval)  <span class="co"># directly implemented in {bigutilsr}</span></code></pre></div>
@@ -315,18 +246,3 @@ U3[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> 
 </div>
 </div>
 </section>
-
-
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
-
-</body>
-</html>

@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", out.width = "80%")
 
 In this post, I present something I am currently investigating (feedback welcome!) and that I am implementing in my new [package {bigutilsr}](https://github.com/privefl/bigutilsr). This package can be used to detect outlier samples in Principal Component Analysis (PCA).
 
+
 ```{r, eval=FALSE}
 remotes::install_github("privefl/bigutilsr")
 ```
@@ -26,6 +27,7 @@ remotes::install_github("privefl/bigutilsr")
 library(bigutilsr)
 ```
 
+I present three different statistics of outlierness and two different ways to choose the threshold of being an outlier for those statistics.
 
 ## A standard way to detect outliers
 
@@ -259,7 +261,16 @@ Note the possible use of bootstrap to make `hist_out()` and `pca_nspike()` more 
 Outlier detection is not an easy task, especially if you want the criterion of outlierness to be robust to several factors such as sample size and distribution of the data.
 Moreover, there is always some threshold to choose to separate outliers from non-ouliers.
 
-With one small example, we have seen several statistics to compute some degree of outlierness, and several ways to decide the threshold of being an outlier according to those statistics.
+With one small example, we have seen several statistics to compute some degree of outlierness:
+
+1. "6 standard deviations away from the mean" that somewhat assumes that PCs are normally distributed. Here, data is more a mixture of distributions (one for each cluster) than one normal distribution so that it might not work that well.
+2. Mahalanobis distance that also assumes a (multivariate) normal distribution but that takes into account the correlation between PCs (that is not the identity because we use a robust estimation).
+3. Local Outlier Factor (LOF) that does not assume any distribution and that finds points that are in empty areas (far from every other points) rather than points that are far from the center. One drawback is that this statistic has an hyper-parameter K (nearest neighbours); we combine three different values by default to make this statistic more robust to the choice of this parameter K.
+
+and several ways to decide the threshold of being an outlier according to those statistics:
+
+1. Tukey's rule, adjusting for skewness and multiple testing.
+2. "Histogram's gap" that finds a gap between outlier values and "normal" values based on a histogram.
 
 I have been investigating outlier detection in the past weeks. Any feedback and further input on this would be great.
 
